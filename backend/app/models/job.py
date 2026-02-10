@@ -24,6 +24,8 @@ class Job(BaseModel):
     source_url: Optional[str] = None
     separator: str = "demucs"  # "demucs" or "lalal"
     audio_hash: Optional[str] = None  # SHA-256 of original audio for dedup
+    title: Optional[str] = None
+    created_at: Optional[str] = None
     error: Optional[str] = None
     progress: float = 0.0  # 0-100
 
@@ -34,6 +36,8 @@ class JobResponse(BaseModel):
     bpm: float
     source: str
     separator: str = "demucs"
+    title: Optional[str] = None
+    created_at: Optional[str] = None
     error: Optional[str] = None
     progress: float = 0.0
 

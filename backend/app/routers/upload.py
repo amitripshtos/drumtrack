@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, File, Form, UploadFile
 
@@ -20,7 +21,14 @@ async def upload_file(
 ):
     """Create a job from an uploaded MP3 file."""
     job_id = str(uuid.uuid4())
-    job = Job(id=job_id, bpm=bpm, source="upload", separator=separator)
+    job = Job(
+        id=job_id,
+        bpm=bpm,
+        source="upload",
+        separator=separator,
+        title=file.filename or "upload",
+        created_at=datetime.now(timezone.utc).isoformat(),
+    )
     job_store.create(job)
 
     # Save uploaded file and compute hash for dedup
@@ -46,6 +54,8 @@ async def youtube_upload(request: YouTubeRequest):
         source="youtube",
         source_url=request.url,
         separator=request.separator,
+        title=request.url,
+        created_at=datetime.now(timezone.utc).isoformat(),
     )
     job_store.create(job)
 

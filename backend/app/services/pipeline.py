@@ -32,6 +32,13 @@ async def run_pipeline(job_id: str) -> None:
             await asyncio.to_thread(
                 youtube.download_youtube, job.source_url, original_path
             )
+            # Update job title with actual video title
+            video_title = await asyncio.to_thread(
+                youtube.get_video_title, job.source_url
+            )
+            if video_title:
+                job.title = video_title
+                job_store._persist(job)
             # Compute audio hash for dedup (uploads already have it set)
             audio_bytes = await asyncio.to_thread(original_path.read_bytes)
             job.audio_hash = hashlib.sha256(audio_bytes).hexdigest()

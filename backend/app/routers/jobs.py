@@ -11,7 +11,16 @@ from app.services.midi_writer import write_midi
 from app.storage.file_manager import file_manager
 from app.storage.job_store import job_store
 
+VALID_STEM_NAMES = {"kick", "snare", "toms", "hh", "cymbals"}
+
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+
+
+@router.get("/", response_model=list[JobResponse])
+async def list_jobs():
+    """List all jobs, sorted newest first."""
+    jobs = job_store.list_all()
+    return [JobResponse(**j.model_dump()) for j in jobs]
 
 
 @router.get("/{job_id}", response_model=JobResponse)
@@ -151,4 +160,28 @@ async def update_clusters(job_id: str, req: ClusterUpdateRequest):
     return ClustersResponse(
         clusters=clusters,
         events=events_data,
+    )
+
+
+@router.get("/{job_id}/stems/{stem_name}")
+async def download_stem(job_id: str, stem_name: str):
+    """Download an individual drum stem WAV file."""
+    if stem_name not in VALID_STEM_NAMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid stem name. Must be one of: {', '.join(sorted(VALID_STEM_NAMES))}",
+        )
+
+    job = job_store.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    stem_path = file_manager.drum_stem_path(job_id, stem_name)
+    if not stem_path.exists():
+        raise HTTPException(status_code=404, detail="Stem file not ready")
+
+    return FileResponse(
+        stem_path,
+        media_type="audio/wav",
+        filename=f"{stem_name}_{job_id[:8]}.wav",
     )

@@ -15,6 +15,8 @@ export interface JobResponse {
   bpm: number;
   source: string;
   separator: string;
+  title: string | null;
+  created_at: string | null;
   error: string | null;
   progress: number;
 }

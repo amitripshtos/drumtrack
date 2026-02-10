@@ -77,6 +77,16 @@ export async function updateClusters(
   return res.json();
 }
 
+export async function fetchJobs(): Promise<JobResponse[]> {
+  const res = await fetch(`${API_BASE}/api/jobs/`);
+  if (!res.ok) throw new Error(`Failed to fetch jobs: ${res.statusText}`);
+  return res.json();
+}
+
+export function getDrumStemUrl(jobId: string, stemName: string): string {
+  return `${API_BASE}/api/jobs/${jobId}/stems/${stemName}`;
+}
+
 export async function getDrumTrackArrayBuffer(
   jobId: string
 ): Promise<ArrayBuffer> {

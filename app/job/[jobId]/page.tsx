@@ -9,7 +9,7 @@ import { MidiPlayer } from "@/components/midi-player";
 import { DownloadButton } from "@/components/download-button";
 import { ClusterReview } from "@/components/cluster-review";
 import { useJobPolling } from "@/hooks/use-job-polling";
-import { getMidiUrl, getOtherTrackUrl, getDrumTrackUrl } from "@/lib/api";
+import { getMidiUrl, getOtherTrackUrl, getDrumTrackUrl, getDrumStemUrl } from "@/lib/api";
 
 export default function JobPage({
   params,
@@ -22,7 +22,7 @@ export default function JobPage({
 
   if (error) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-8">
+      <main className="flex flex-col items-center justify-center p-8">
         <p className="text-red-500">Error: {error}</p>
         <Link href="/" className="mt-4">
           <Button variant="outline">
@@ -36,7 +36,7 @@ export default function JobPage({
 
   if (!job) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-8">
+      <main className="flex flex-col items-center justify-center p-8">
         <p className="text-muted-foreground">Loading...</p>
       </main>
     );
@@ -45,7 +45,7 @@ export default function JobPage({
   const isComplete = job.status === "complete";
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-8 pt-16">
+    <main className="flex flex-col items-center p-8 pt-16">
       <div className="w-full max-w-lg space-y-6">
         <Link href="/">
           <Button variant="ghost" size="sm" className="mb-4">
@@ -85,6 +85,39 @@ export default function JobPage({
                 label="Backing Track"
                 filename={`backing_${jobId.slice(0, 8)}.mp3`}
               />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Individual Drum Stems
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <DownloadButton
+                  url={getDrumStemUrl(jobId, "kick")}
+                  label="Kick"
+                  filename={`kick_${jobId.slice(0, 8)}.wav`}
+                />
+                <DownloadButton
+                  url={getDrumStemUrl(jobId, "snare")}
+                  label="Snare"
+                  filename={`snare_${jobId.slice(0, 8)}.wav`}
+                />
+                <DownloadButton
+                  url={getDrumStemUrl(jobId, "toms")}
+                  label="Toms"
+                  filename={`toms_${jobId.slice(0, 8)}.wav`}
+                />
+                <DownloadButton
+                  url={getDrumStemUrl(jobId, "hh")}
+                  label="Hi-hat"
+                  filename={`hh_${jobId.slice(0, 8)}.wav`}
+                />
+                <DownloadButton
+                  url={getDrumStemUrl(jobId, "cymbals")}
+                  label="Cymbals"
+                  filename={`cymbals_${jobId.slice(0, 8)}.wav`}
+                />
+              </div>
             </div>
           </>
         )}

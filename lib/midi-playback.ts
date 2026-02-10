@@ -93,7 +93,7 @@ export class MidiPlaybackEngine {
         if (this.sampler) {
           const noteName = Tone.Frequency(event.midi_note, "midi").toNote();
           const velocity = event.velocity / 127;
-          this.sampler.triggerAttackRelease(noteName, "4n", time, velocity);
+          this.sampler.triggerAttackRelease(noteName, "1n", time, velocity);
         }
       }, event.quantized_time);
       this.scheduledEvents.push(id);
