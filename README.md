@@ -35,6 +35,11 @@ Audio Input (MP3 upload or YouTube URL)
    Listen back, relabel misclassified hits, re-export
 ```
 
+#### References
+https://github.com/adefossez/demucs
+https://docs.google.com/document/d/17fjNvJzj8ZGSer7c7OFe_CNfUKbAxEh_OBv94ZdRG5c/edit?tab=t.0
+https://github.com/ZFTurbo/Music-Source-Separation-Training/tree/main
+
 ### Stem Separation
 
 The first step isolates the drum track from the rest of the mix. Two backends are supported:
