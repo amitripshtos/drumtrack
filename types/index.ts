@@ -3,8 +3,8 @@ export type JobStatus =
   | "downloading_youtube"
   | "uploading_to_lalal"
   | "separating_stems"
+  | "separating_drum_instruments"
   | "detecting_onsets"
-  | "classifying_drums"
   | "generating_midi"
   | "complete"
   | "failed";
@@ -49,8 +49,8 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
   downloading_youtube: "Downloading from YouTube",
   uploading_to_lalal: "Uploading to LALAL.AI",
   separating_stems: "Separating stems",
+  separating_drum_instruments: "Separating drum instruments",
   detecting_onsets: "Detecting drum hits",
-  classifying_drums: "Classifying drums",
   generating_midi: "Generating MIDI",
   complete: "Complete",
   failed: "Failed",

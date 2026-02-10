@@ -76,10 +76,13 @@ async def run_pipeline(job_id: str) -> None:
             )
             job_store.update_status(job_id, JobStatus.separating_stems, progress=50)
 
-        # Step 6: Onset detection + clustering + auto-labeling
-        job_store.update_status(job_id, JobStatus.detecting_onsets, progress=60)
-        logger.info("Detecting onsets and clustering drums...")
-        job_store.update_status(job_id, JobStatus.classifying_drums, progress=70)
+        # Step 3: Separate drum track into individual instruments
+        job_store.update_status(job_id, JobStatus.separating_drum_instruments, progress=55)
+        logger.info("Separating drum instruments (kick, snare, toms, hh, cymbals)...")
+
+        # Step 4: Detect onsets per stem
+        job_store.update_status(job_id, JobStatus.detecting_onsets, progress=65)
+        logger.info("Detecting onsets per drum stem...")
 
         events, clusters = await asyncio.to_thread(
             detect_cluster_and_label, drum_path, job.bpm

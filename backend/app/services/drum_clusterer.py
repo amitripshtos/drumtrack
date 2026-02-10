@@ -1,46 +1,28 @@
-"""Cluster-then-label drum classification pipeline.
+"""DrumSep + peak detection drum classification pipeline.
 
-Replaces the SVM per-onset classifier with:
-1. Aggressive onset detection (low wait threshold)
-2. Feature extraction (reuses DrumClassifierModel.extract_features)
-3. K-means clustering of similar-sounding onsets
-4. Spectral heuristic auto-labeling per cluster
-5. Per-type deduplication
+Uses DrumSep MDX23C to separate drums into 5 stems (kick, snare, toms, hh, cymbals),
+then runs simple peak detection on each isolated stem to find onset times and velocities.
 """
 
 import logging
 from pathlib import Path
 
-import librosa
-import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
-
-from app.ml.classifier import estimate_velocity
-from app.ml.drum_classifier_model import DrumClassifierModel
 from app.ml.drum_map import DRUM_MAP, DRUM_TYPE_MIN_GAP_MS
-from app.ml.feature_extractor import extract_rms_at_onset
 from app.models.cluster import ClusterInfo
 from app.models.drum_event import DrumEvent
+from app.services.drumsep import separate_drums
+from app.services.peak_detection import detect_peaks
 
 logger = logging.getLogger(__name__)
 
-# Feature indices from DrumClassifierModel.extract_features (29-dim):
-#  [0:6]   - 6 freq band energy ratios: sub_bass, bass, mid, hi_mid, high, air
-#  [6:11]  - centroid, bandwidth, flatness, zcr, rolloff
-#  [11:24] - 13 MFCCs
-#  [24:28] - 4 temporal decay quartiles
-#  [28]    - sustain ratio
-IDX_SUB_BASS = 0
-IDX_BASS = 1
-IDX_MID = 2
-IDX_HI_MID = 3
-IDX_HIGH = 4
-IDX_CENTROID = 6
-IDX_FLATNESS = 8
-IDX_SUSTAIN = 28
+# Stem -> (drum_type, midi_note, cluster_id)
+STEM_MAPPING = {
+    "kick":    ("kick",         36, 0),
+    "snare":   ("snare",        38, 1),
+    "toms":    ("tom_mid",      47, 2),
+    "hh":      ("closed_hihat", 42, 3),
+    "cymbals": ("crash",        49, 4),
+}
 
 
 def quantize_time(time_sec: float, bpm: float) -> float:
@@ -53,240 +35,75 @@ def quantize_time(time_sec: float, bpm: float) -> float:
 def detect_cluster_and_label(
     drum_audio_path: Path, bpm: float
 ) -> tuple[list[DrumEvent], list[ClusterInfo]]:
-    """Full clustering pipeline: detect onsets, cluster, auto-label, dedup, quantize.
+    """Full pipeline: separate drums into stems, detect peaks, build events.
 
     Returns (events, clusters).
     """
-    logger.info(f"Loading drum audio from {drum_audio_path}")
-    y, sr = librosa.load(str(drum_audio_path), sr=22050, mono=True)
+    # Step 1: Separate drum track into 5 stems
+    output_dir = drum_audio_path.parent / "stems"
+    logger.info(f"Separating drum track into stems -> {output_dir}")
+    stem_paths = separate_drums(drum_audio_path, output_dir)
 
-    # --- Onset detection with aggressive params ---
-    logger.info("Detecting onsets (aggressive params for fast passages)...")
-    onset_frames = librosa.onset.onset_detect(
-        y=y,
-        sr=sr,
-        units="frames",
-        hop_length=512,
-        backtrack=True,
-        pre_max=2,
-        post_max=2,
-        pre_avg=3,
-        post_avg=4,
-        delta=0.06,
-        wait=1,
-    )
-    onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512)
-    onset_samples = librosa.frames_to_samples(onset_frames, hop_length=512)
-    logger.info(f"Found {len(onset_frames)} raw onsets")
+    # Step 2: Detect peaks per stem and build events
+    all_events: list[DrumEvent] = []
+    clusters: list[ClusterInfo] = []
 
-    if len(onset_frames) == 0:
-        return [], []
+    for stem_name, (drum_type, midi_note, cluster_id) in STEM_MAPPING.items():
+        stem_path = stem_paths.get(stem_name)
+        if stem_path is None or not stem_path.exists():
+            logger.warning(f"Stem '{stem_name}' not found, skipping")
+            continue
 
-    # --- Extract features for all onsets ---
-    extractor = DrumClassifierModel()
-    features_list = []
-    rms_list = []
-    for sample in onset_samples:
-        features = extractor.extract_features(y, sr, int(sample))
-        features_list.append(features)
-        rms_list.append(extract_rms_at_onset(y, sr, int(sample)))
+        # Detect peaks in this stem
+        peaks = detect_peaks(stem_path, bpm, stem_name=stem_name)
+        logger.info(f"Stem '{stem_name}': {len(peaks)} peaks detected")
 
-    features_matrix = np.array(features_list)
+        if not peaks:
+            continue
 
-    # --- Cluster ---
-    labels, k = cluster_onsets(features_matrix)
-    logger.info(f"Clustered into {k} groups")
-
-    # --- Auto-label ---
-    clusters = auto_label_clusters(features_matrix, labels)
-
-    # Build label lookup: cluster_id -> drum_type
-    label_map = {c.id: c.label for c in clusters}
-
-    # --- Build events ---
-    events: list[DrumEvent] = []
-    for i, (time_sec, sample) in enumerate(zip(onset_times, onset_samples)):
-        cid = int(labels[i])
-        drum_type = label_map[cid]
-        midi_note = DRUM_MAP[drum_type]
-        velocity = estimate_velocity(rms_list[i])
-        quantized = quantize_time(time_sec, bpm)
-
-        events.append(
-            DrumEvent(
-                time=round(float(time_sec), 4),
-                quantized_time=round(quantized, 4),
+        # Build DrumEvents
+        stem_events: list[DrumEvent] = []
+        for peak in peaks:
+            event = DrumEvent(
+                time=peak["time"],
+                quantized_time=peak["quantized_time"],
                 drum_type=drum_type,
                 midi_note=midi_note,
-                velocity=velocity,
-                confidence=round(clusters[cid].suggestion_confidence, 3)
-                if cid < len(clusters)
-                else 0.5,
-                cluster_id=cid,
+                velocity=peak["velocity"],
+                confidence=0.9,  # high confidence since stems are isolated
+                cluster_id=cluster_id,
+            )
+            stem_events.append(event)
+
+        all_events.extend(stem_events)
+
+        # Build ClusterInfo for this stem
+        mean_vel = sum(e.velocity for e in stem_events) / len(stem_events)
+        times = sorted(e.time for e in stem_events)
+        representative_time = times[len(times) // 2]
+
+        clusters.append(
+            ClusterInfo(
+                id=cluster_id,
+                suggested_label=drum_type,
+                label=drum_type,
+                suggestion_confidence=0.9,
+                event_count=len(stem_events),
+                mean_velocity=round(mean_vel, 1),
+                representative_time=round(representative_time, 3),
             )
         )
 
-    # --- Deduplicate ---
-    events = deduplicate_events(events)
+    # Deduplicate and sort
+    all_events = deduplicate_events(all_events)
+    all_events.sort(key=lambda e: e.time)
 
-    # --- Update cluster stats after dedup ---
-    clusters = _recompute_cluster_stats(events, clusters, features_matrix, labels)
+    # Update cluster stats after dedup
+    _recompute_cluster_stats(all_events, clusters)
 
-    logger.info(f"Final: {len(events)} events in {k} clusters")
-    return events, clusters
-
-
-def cluster_onsets(features_matrix: np.ndarray) -> tuple[np.ndarray, int]:
-    """Cluster onset feature vectors using K-means.
-
-    Returns (labels, k).
-    """
-    n = len(features_matrix)
-
-    if n < 3:
-        return np.zeros(n, dtype=int), 1
-
-    # Standardize features
-    scaler = StandardScaler()
-    X = scaler.fit_transform(features_matrix)
-
-    # PCA dimensionality reduction for large onset sets
-    if n > 50:
-        n_components = min(15, X.shape[1])
-        pca = PCA(n_components=n_components)
-        X = pca.fit_transform(X)
-
-    # Try k from 2 to min(8, n//3), pick best silhouette
-    k_min = 2
-    k_max = min(8, max(2, n // 3))
-
-    if k_max <= k_min:
-        km = KMeans(n_clusters=2, random_state=42, n_init=10)
-        labels = km.fit_predict(X)
-        return labels, 2
-
-    best_k = 3
-    best_score = -1.0
-    best_labels = None
-
-    for k in range(k_min, k_max + 1):
-        km = KMeans(n_clusters=k, random_state=42, n_init=10)
-        trial_labels = km.fit_predict(X)
-        score = silhouette_score(X, trial_labels)
-        if score > best_score:
-            best_score = score
-            best_k = k
-            best_labels = trial_labels
-
-    # If all silhouettes are very low, default to k=3
-    if best_score < 0.15:
-        km = KMeans(n_clusters=3, random_state=42, n_init=10)
-        best_labels = km.fit_predict(X)
-        best_k = 3
-
-    return best_labels, best_k
-
-
-def auto_label_clusters(
-    features_matrix: np.ndarray, labels: np.ndarray
-) -> list[ClusterInfo]:
-    """Assign drum type labels to clusters based on spectral heuristics.
-
-    Returns a ClusterInfo per unique cluster id, sorted by id.
-    """
-    unique_ids = sorted(set(labels))
-    clusters: list[ClusterInfo] = []
-
-    # Compute per-cluster mean features
-    cluster_means = {}
-    for cid in unique_ids:
-        mask = labels == cid
-        cluster_means[cid] = features_matrix[mask].mean(axis=0)
-
-    # Track assigned labels to avoid duplicate toms
-    assigned_labels: set[str] = set()
-    tom_candidates: list[tuple[int, np.ndarray]] = []
-
-    for cid in unique_ids:
-        mean = cluster_means[cid]
-        sub_bass = mean[IDX_SUB_BASS]
-        bass = mean[IDX_BASS]
-        mid = mean[IDX_MID]
-        hi_mid = mean[IDX_HI_MID]
-        high = mean[IDX_HIGH]
-        centroid = mean[IDX_CENTROID]
-        flatness = mean[IDX_FLATNESS]
-        sustain = mean[IDX_SUSTAIN]
-
-        label = None
-        confidence = 0.5
-
-        # Priority 1: Kick
-        if sub_bass + bass > 0.65 and centroid < 1500:
-            label = "kick"
-            confidence = min(0.95, (sub_bass + bass) * 1.2)
-        # Priority 2: Crash
-        elif hi_mid + high > 0.45 and flatness > 0.20 and sustain > 0.6:
-            label = "crash"
-            confidence = min(0.9, flatness * 3)
-        # Priority 3: Ride
-        elif hi_mid + high > 0.40 and flatness > 0.15 and sustain > 0.5:
-            label = "ride"
-            confidence = min(0.85, flatness * 3)
-        # Priority 4: Closed hi-hat
-        elif hi_mid + high > 0.35 and sustain < 0.4:
-            label = "closed_hihat"
-            confidence = min(0.85, (hi_mid + high) * 1.1)
-        # Priority 5: Open hi-hat
-        elif hi_mid + high > 0.35 and sustain >= 0.4:
-            label = "open_hihat"
-            confidence = min(0.8, sustain * 1.0)
-        # Priority 6: Snare
-        elif mid + hi_mid > 0.45 and flatness > 0.08 and centroid > 2000:
-            label = "snare"
-            confidence = min(0.8, (mid + hi_mid) * 1.0)
-        else:
-            # Could be a tom or unknown — collect for tom sorting
-            tom_candidates.append((cid, mean))
-
-        if label is not None:
-            assigned_labels.add(label)
-            clusters.append(
-                ClusterInfo(
-                    id=cid,
-                    suggested_label=label,
-                    label=label,
-                    suggestion_confidence=round(confidence, 3),
-                    event_count=int(np.sum(labels == cid)),
-                    mean_velocity=0,
-                    representative_time=0.0,
-                )
-            )
-
-    # Assign toms by sorting remaining clusters by centroid
-    if tom_candidates:
-        tom_candidates.sort(key=lambda x: x[1][IDX_CENTROID])
-        tom_types = ["tom_low", "tom_mid", "tom_high"]
-        for idx, (cid, mean) in enumerate(tom_candidates):
-            if idx < len(tom_types):
-                label = tom_types[idx]
-            else:
-                label = "closed_hihat"  # fallback
-            clusters.append(
-                ClusterInfo(
-                    id=cid,
-                    suggested_label=label,
-                    label=label,
-                    suggestion_confidence=0.4,
-                    event_count=int(np.sum(labels == cid)),
-                    mean_velocity=0,
-                    representative_time=0.0,
-                )
-            )
-
-    # Sort by cluster id
     clusters.sort(key=lambda c: c.id)
-    return clusters
+    logger.info(f"Final: {len(all_events)} events in {len(clusters)} clusters")
+    return all_events, clusters
 
 
 def deduplicate_events(events: list[DrumEvent]) -> list[DrumEvent]:
@@ -365,13 +182,9 @@ def relabel_and_regenerate(
 
 
 def _recompute_cluster_stats(
-    events: list[DrumEvent],
-    clusters: list[ClusterInfo],
-    features_matrix: np.ndarray,
-    original_labels: np.ndarray,
-) -> list[ClusterInfo]:
+    events: list[DrumEvent], clusters: list[ClusterInfo]
+) -> None:
     """Update cluster event_count, mean_velocity, representative_time after dedup."""
-    # Build stats from remaining events
     event_by_cluster: dict[int, list[DrumEvent]] = {}
     for e in events:
         event_by_cluster.setdefault(e.cluster_id, []).append(e)
@@ -383,11 +196,8 @@ def _recompute_cluster_stats(
             c.mean_velocity = round(
                 sum(e.velocity for e in cevents) / len(cevents), 1
             )
-            # Representative time: median event time
             times = sorted(e.time for e in cevents)
             c.representative_time = round(times[len(times) // 2], 3)
         else:
             c.mean_velocity = 0
             c.representative_time = 0.0
-
-    return clusters

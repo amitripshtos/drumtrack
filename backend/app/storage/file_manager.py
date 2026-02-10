@@ -27,5 +27,13 @@ class FileManager:
     def clusters_path(self, job_id: str) -> Path:
         return self.job_dir(job_id) / "clusters.json"
 
+    def stems_dir(self, job_id: str) -> Path:
+        d = self.job_dir(job_id) / "stems"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
+    def drum_stem_path(self, job_id: str, stem_name: str) -> Path:
+        return self.stems_dir(job_id) / f"{stem_name}.wav"
+
 
 file_manager = FileManager()

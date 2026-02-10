@@ -54,6 +54,7 @@ dist/
 build/
 backend/.venv/
 backend/storage/
+backend/models/
 
 # keep .env.example
 !.env.example
