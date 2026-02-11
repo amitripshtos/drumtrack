@@ -10,9 +10,9 @@ DrumTrack processes audio through a multi-stage pipeline that combines deep lear
 
 ## Screenshots
 
-||Screenshot|
-|Upload a song / Youtube link|![image](screenshots/ui-new-job.png)|
-|Get song output|![image](screenshots/ui-job.png)|
+| Scenario | Screenshot |
+| Upload a song or Youtube link | ![image](screenshots/ui-new-job.png) |
+| Get song output | ![image](screenshots/ui-job.png) |
 
 ### Pipeline Overview
 
@@ -42,9 +42,9 @@ Audio Input (MP3 upload or YouTube URL)
 ```
 
 #### References
-https://github.com/adefossez/demucs
-https://docs.google.com/document/d/17fjNvJzj8ZGSer7c7OFe_CNfUKbAxEh_OBv94ZdRG5c/edit?tab=t.0
-https://github.com/ZFTurbo/Music-Source-Separation-Training/tree/main
+<https://github.com/adefossez/demucs>
+<https://docs.google.com/document/d/17fjNvJzj8ZGSer7c7OFe_CNfUKbAxEh_OBv94ZdRG5c/edit?tab=t.0>
+<https://github.com/ZFTurbo/Music-Source-Separation-Training/tree/main>
 
 ### Stem Separation
 
