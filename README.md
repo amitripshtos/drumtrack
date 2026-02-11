@@ -15,6 +15,11 @@ DrumTrack processes audio through a multi-stage pipeline that combines deep lear
 | Upload a song or Youtube link | ![image](screenshots/ui-new-job.png) |
 | Get song output | ![image](screenshots/ui-job.png) |
 
+## Examples
+| Input | Output (drums are midi) |
+| --- | --- |
+| [Neat - I remember](https://www.youtube.com/watch?v=LmAHa_oJdA4) | [neat-i-remember-midi-drums.wav](https://github.com/user-attachments/files/25243372/neat-i-remember-midi-drums.wav) |
+
 ### Pipeline Overview
 
 ```
