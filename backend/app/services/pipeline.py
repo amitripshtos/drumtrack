@@ -6,7 +6,7 @@ import shutil
 
 from app.models.job import JobStatus
 from app.services import demucs as demucs_service
-from app.services import lalal, youtube
+from app.services import youtube
 from app.services.drum_clusterer import detect_onsets_from_stems, run_drum_separation
 from app.services.midi_writer import write_midi
 from app.storage.file_manager import file_manager
@@ -72,22 +72,7 @@ async def run_pipeline(job_id: str, start_from: str | None = None) -> None:
                 await asyncio.to_thread(shutil.copy2, src_drum, drum_path)
                 await asyncio.to_thread(shutil.copy2, src_other, other_path)
                 job_store.update_status(job_id, JobStatus.separating_stems, progress=50)
-            elif job.separator == "lalal":
-                # LALAL.AI cloud separation
-                job_store.update_status(job_id, JobStatus.uploading_to_lalal, progress=15)
-                logger.info("Uploading to LALAL.AI...")
-                file_id = await lalal.upload_file(original_path)
-
-                job_store.update_status(job_id, JobStatus.separating_stems, progress=25)
-                logger.info("Starting stem separation...")
-                await lalal.start_split(file_id)
-
-                result = await lalal.poll_until_done(file_id)
-                job_store.update_status(job_id, JobStatus.separating_stems, progress=50)
-
-                await lalal.download_stems(result, drum_path, other_path)
             else:
-                # Demucs local separation (default)
                 job_store.update_status(job_id, JobStatus.separating_stems, progress=15)
                 logger.info("Running Demucs local stem separation...")
                 await asyncio.to_thread(

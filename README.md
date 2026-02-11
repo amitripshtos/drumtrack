@@ -21,7 +21,7 @@ DrumTrack processes audio through a multi-stage pipeline that combines deep lear
 Audio Input (MP3 upload or YouTube URL)
     |
     v
-1. Stem Separation (Demucs or LALAL.AI)
+1. Stem Separation (Demucs)
    Isolates drums from bass, vocals, and other instruments
     |
     v
@@ -49,10 +49,7 @@ Audio Input (MP3 upload or YouTube URL)
 
 ### Stem Separation
 
-The first step isolates the drum track from the rest of the mix. Two backends are supported:
-
-- **Demucs** (default, local) — Facebook Research's `htdemucs` model, a hybrid transformer/waveform U-Net that separates audio into four stems (drums, bass, vocals, other). Runs locally on CPU or GPU.
-- **LALAL.AI** (cloud) — A commercial cloud API that can produce higher-quality separations. Requires an API key.
+The first step isolates the drum track from the rest of the mix using **Demucs** — Facebook Research's `htdemucs` model, a hybrid transformer/waveform U-Net that separates audio into four stems (drums, bass, vocals, other). Runs locally on CPU or GPU.
 
 The non-drum stems are mixed back together into a "backing track" that can be played alongside the MIDI output for reference.
 
@@ -149,12 +146,6 @@ uv sync
 ```
 
 This installs all Python dependencies including PyTorch, Demucs, librosa, and FastAPI. On first run, the DrumSep model weights (~200MB) will be downloaded automatically.
-
-If you want to use LALAL.AI for stem separation, create a `.env` file in the project root:
-
-```
-LALAL_API_KEY=your_key_here
-```
 
 Start the backend:
 

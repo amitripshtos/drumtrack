@@ -4,7 +4,6 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    lalal_api_key: str = ""
     storage_dir: Path = Path("./storage")
     frontend_url: str = "http://localhost:3000"
 

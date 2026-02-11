@@ -20,7 +20,6 @@ _background_tasks: set[asyncio.Task] = set()
 async def upload_file(
     file: UploadFile = File(...),
     bpm: float = Form(...),
-    separator: str = Form("demucs"),
 ):
     """Create a job from an uploaded MP3 file."""
     job_id = str(uuid.uuid4())
@@ -28,7 +27,6 @@ async def upload_file(
         id=job_id,
         bpm=bpm,
         source="upload",
-        separator=separator,
         title=file.filename or "upload",
         created_at=datetime.now(UTC).isoformat(),
     )
@@ -58,7 +56,6 @@ async def youtube_upload(request: YouTubeRequest):
         bpm=request.bpm,
         source="youtube",
         source_url=request.url,
-        separator=request.separator,
         title=request.url,
         created_at=datetime.now(UTC).isoformat(),
     )

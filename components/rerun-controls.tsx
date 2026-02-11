@@ -28,7 +28,7 @@ const CHECKPOINTS = [
   {
     value: "stem_separation",
     label: "Stem Separation",
-    description: "Re-run Demucs/LALAL and everything after",
+    description: "Re-run Demucs and everything after",
   },
 ] as const;
 

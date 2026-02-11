@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class JobStatus(StrEnum):
     pending = "pending"
     downloading_youtube = "downloading_youtube"
-    uploading_to_lalal = "uploading_to_lalal"
     separating_stems = "separating_stems"
     separating_drum_instruments = "separating_drum_instruments"
     detecting_onsets = "detecting_onsets"
@@ -21,7 +20,6 @@ class Job(BaseModel):
     bpm: float
     source: str  # "upload" or "youtube"
     source_url: str | None = None
-    separator: str = "demucs"  # "demucs" or "lalal"
     audio_hash: str | None = None  # SHA-256 of original audio for dedup
     title: str | None = None
     created_at: str | None = None
@@ -34,7 +32,6 @@ class JobResponse(BaseModel):
     status: JobStatus
     bpm: float
     source: str
-    separator: str = "demucs"
     title: str | None = None
     created_at: str | None = None
     error: str | None = None
@@ -44,7 +41,6 @@ class JobResponse(BaseModel):
 class YouTubeRequest(BaseModel):
     url: str
     bpm: float
-    separator: str = "demucs"
 
 
 class RerunRequest(BaseModel):

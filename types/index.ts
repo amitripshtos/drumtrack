@@ -1,7 +1,6 @@
 export type JobStatus =
   | "pending"
   | "downloading_youtube"
-  | "uploading_to_lalal"
   | "separating_stems"
   | "separating_drum_instruments"
   | "detecting_onsets"
@@ -14,7 +13,6 @@ export interface JobResponse {
   status: JobStatus;
   bpm: number;
   source: string;
-  separator: string;
   title: string | null;
   created_at: string | null;
   error: string | null;
@@ -49,7 +47,6 @@ export interface ClustersResponse {
 export const STATUS_LABELS: Record<JobStatus, string> = {
   pending: "Pending",
   downloading_youtube: "Downloading from YouTube",
-  uploading_to_lalal: "Uploading to LALAL.AI",
   separating_stems: "Separating stems",
   separating_drum_instruments: "Separating drum instruments",
   detecting_onsets: "Detecting drum hits",

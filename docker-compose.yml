@@ -9,7 +9,6 @@ services:
       - backend-models:/app/models
     environment:
       - STORAGE_DIR=/app/storage
-      - LALAL_API_KEY=${LALAL_API_KEY:-}
     restart: unless-stopped
 
   frontend:
