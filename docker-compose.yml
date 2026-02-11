@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend-storage:/app/storage
+      - backend-models:/app/models
+    environment:
+      - STORAGE_DIR=/app/storage
+      - LALAL_API_KEY=${LALAL_API_KEY:-}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend-storage:
+  backend-models:

@@ -1,0 +1,9 @@
+node_modules
+.next
+backend/.venv
+backend/.ruff_cache
+backend/storage
+backend/models
+.claude
+.git
+*.md
