@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Loader2, Upload, Youtube } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, Youtube, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { uploadFile, submitYouTube } from "@/lib/api";
+import { submitYouTube, uploadFile } from "@/lib/api";
+import type { JobResponse } from "@/types";
 
 export function UploadForm() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function UploadForm() {
 
   const handleSubmit = async () => {
     const bpmNum = parseFloat(bpm);
-    if (isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) {
+    if (Number.isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) {
       setError("BPM must be between 20 and 300");
       return;
     }
@@ -44,7 +45,7 @@ export function UploadForm() {
     setError(null);
 
     try {
-      let job;
+      let job: JobResponse;
       if (mode === "upload") {
         if (!file) {
           setError("Please select a file");
@@ -146,16 +147,10 @@ export function UploadForm() {
         </div>
 
         {/* Error */}
-        {error && (
-          <p className="text-sm text-red-500">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         {/* Submit */}
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full"
-        >
+        <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

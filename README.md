@@ -8,6 +8,12 @@ Upload an MP3 or paste a YouTube URL, and DrumTrack will separate the drums, det
 
 DrumTrack processes audio through a multi-stage pipeline that combines deep learning models with signal processing.
 
+## Screenshots
+
+||Screenshot|
+|Upload a song / Youtube link|![image](screenshots/ui-new-job.png)|
+|Get song output|![image](screenshots/ui-job.png)|
+
 ### Pipeline Overview
 
 ```

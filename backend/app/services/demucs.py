@@ -1,9 +1,8 @@
 import logging
 from pathlib import Path
 
-import torch
-import numpy as np
 import soundfile as sf
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,9 @@ def separate(input_path: Path, drum_path: Path, other_path: Path) -> None:
 
     # Load audio
     logger.info(f"Loading audio from {input_path}")
-    audio = AudioFile(input_path).read(streams=0, samplerate=model.samplerate, channels=model.audio_channels)
+    audio = AudioFile(input_path).read(
+        streams=0, samplerate=model.samplerate, channels=model.audio_channels
+    )
     # audio shape: (channels, samples)
 
     ref = audio.mean(0)

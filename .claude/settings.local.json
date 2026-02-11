@@ -3,13 +3,28 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.lalal.ai)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(pnpm add:*)",
       "Bash(uv sync:*)",
       "Bash(uv run python:*)",
       "Bash(gh api:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(pnpm biome check:*)",
+      "Bash(uv run ruff check:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE_PATH=$(jq -r '.tool_input.file_path // empty') && case \"$FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx|*.css) cd \"$CLAUDE_PROJECT_DIR\" && pnpm exec biome check --write \"$FILE_PATH\" 2>/dev/null; exit 0;; *.py) cd \"$CLAUDE_PROJECT_DIR/backend\" && uv run ruff check --fix \"$FILE_PATH\" 2>/dev/null && uv run ruff format \"$FILE_PATH\" 2>/dev/null; exit 0;; *) exit 0;; esac",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

@@ -1,16 +1,19 @@
 import asyncio
 import hashlib
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, File, Form, UploadFile
 
-from app.models.job import Job, JobResponse, JobStatus, YouTubeRequest
+from app.models.job import Job, JobResponse, YouTubeRequest
 from app.services.pipeline import run_pipeline
 from app.storage.file_manager import file_manager
 from app.storage.job_store import job_store
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+
+# Hold references to background tasks so they aren't garbage-collected
+_background_tasks: set[asyncio.Task] = set()
 
 
 @router.post("/upload", response_model=JobResponse)
@@ -27,7 +30,7 @@ async def upload_file(
         source="upload",
         separator=separator,
         title=file.filename or "upload",
-        created_at=datetime.now(timezone.utc).isoformat(),
+        created_at=datetime.now(UTC).isoformat(),
     )
     job_store.create(job)
 
@@ -39,7 +42,9 @@ async def upload_file(
     job.audio_hash = hashlib.sha256(content).hexdigest()
 
     # Start pipeline in background
-    asyncio.create_task(run_pipeline(job_id))
+    task = asyncio.create_task(run_pipeline(job_id))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
 
     return JobResponse(**job.model_dump())
 
@@ -55,7 +60,7 @@ async def youtube_upload(request: YouTubeRequest):
         source_url=request.url,
         separator=request.separator,
         title=request.url,
-        created_at=datetime.now(timezone.utc).isoformat(),
+        created_at=datetime.now(UTC).isoformat(),
     )
     job_store.create(job)
 
@@ -63,6 +68,8 @@ async def youtube_upload(request: YouTubeRequest):
     file_manager.job_dir(job_id)
 
     # Start pipeline in background
-    asyncio.create_task(run_pipeline(job_id))
+    task = asyncio.create_task(run_pipeline(job_id))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
 
     return JobResponse(**job.model_dump())

@@ -37,27 +37,24 @@ export function useAudioSnippets(fetchAudioBuffer: () => Promise<ArrayBuffer>) {
     };
   }, [fetchAudioBuffer]);
 
-  const playSnippet = useCallback(
-    (startTime: number, duration: number = 0.3) => {
-      const ctx = audioCtxRef.current;
-      const buffer = bufferRef.current;
-      if (!ctx || !buffer) return;
+  const playSnippet = useCallback((startTime: number, duration: number = 0.3) => {
+    const ctx = audioCtxRef.current;
+    const buffer = bufferRef.current;
+    if (!ctx || !buffer) return;
 
-      // Stop any currently playing snippet
-      sourceRef.current?.stop();
+    // Stop any currently playing snippet
+    sourceRef.current?.stop();
 
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
 
-      const clampedStart = Math.max(0, Math.min(startTime, buffer.duration));
-      const clampedDuration = Math.min(duration, buffer.duration - clampedStart);
+    const clampedStart = Math.max(0, Math.min(startTime, buffer.duration));
+    const clampedDuration = Math.min(duration, buffer.duration - clampedStart);
 
-      source.start(0, clampedStart, clampedDuration);
-      sourceRef.current = source;
-    },
-    []
-  );
+    source.start(0, clampedStart, clampedDuration);
+    sourceRef.current = source;
+  }, []);
 
   return { playSnippet, isLoaded };
 }

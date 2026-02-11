@@ -3,11 +3,10 @@ import hashlib
 import json
 import logging
 import shutil
-from pathlib import Path
 
 from app.models.job import JobStatus
-from app.services import lalal, youtube
 from app.services import demucs as demucs_service
+from app.services import lalal, youtube
 from app.services.drum_clusterer import detect_cluster_and_label
 from app.services.midi_writer import write_midi
 from app.storage.file_manager import file_manager
@@ -29,13 +28,9 @@ async def run_pipeline(job_id: str) -> None:
         if job.source == "youtube" and job.source_url:
             job_store.update_status(job_id, JobStatus.downloading_youtube, progress=5)
             logger.info(f"Downloading YouTube: {job.source_url}")
-            await asyncio.to_thread(
-                youtube.download_youtube, job.source_url, original_path
-            )
+            await asyncio.to_thread(youtube.download_youtube, job.source_url, original_path)
             # Update job title with actual video title
-            video_title = await asyncio.to_thread(
-                youtube.get_video_title, job.source_url
-            )
+            video_title = await asyncio.to_thread(youtube.get_video_title, job.source_url)
             if video_title:
                 job.title = video_title
                 job_store._persist(job)
@@ -78,9 +73,7 @@ async def run_pipeline(job_id: str) -> None:
             # Demucs local separation (default)
             job_store.update_status(job_id, JobStatus.separating_stems, progress=15)
             logger.info("Running Demucs local stem separation...")
-            await asyncio.to_thread(
-                demucs_service.separate, original_path, drum_path, other_path
-            )
+            await asyncio.to_thread(demucs_service.separate, original_path, drum_path, other_path)
             job_store.update_status(job_id, JobStatus.separating_stems, progress=50)
 
         # Step 3: Separate drum track into individual instruments
@@ -91,9 +84,7 @@ async def run_pipeline(job_id: str) -> None:
         job_store.update_status(job_id, JobStatus.detecting_onsets, progress=65)
         logger.info("Detecting onsets per drum stem...")
 
-        events, clusters = await asyncio.to_thread(
-            detect_cluster_and_label, drum_path, job.bpm
-        )
+        events, clusters = await asyncio.to_thread(detect_cluster_and_label, drum_path, job.bpm)
 
         # Save events to JSON
         events_path = file_manager.events_path(job_id)

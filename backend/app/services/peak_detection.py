@@ -14,19 +14,17 @@ logger = logging.getLogger(__name__)
 
 # Stem-specific onset detection parameters
 STEM_PARAMS: dict[str, dict] = {
-    "kick": {"delta": 0.08, "wait": 3},      # Avoid resonance double-triggers
-    "snare": {"delta": 0.06, "wait": 2},      # Ghost notes can be fast
-    "toms": {"delta": 0.07, "wait": 3},       # Similar to kick
-    "hh": {"delta": 0.05, "wait": 1},         # Hi-hats can be very fast (16ths)
-    "cymbals": {"delta": 0.06, "wait": 4},    # Cymbals ring long, avoid retriggers
+    "kick": {"delta": 0.08, "wait": 3},  # Avoid resonance double-triggers
+    "snare": {"delta": 0.06, "wait": 2},  # Ghost notes can be fast
+    "toms": {"delta": 0.07, "wait": 3},  # Similar to kick
+    "hh": {"delta": 0.05, "wait": 1},  # Hi-hats can be very fast (16ths)
+    "cymbals": {"delta": 0.06, "wait": 4},  # Cymbals ring long, avoid retriggers
 }
 
 DEFAULT_PARAMS = {"delta": 0.06, "wait": 2}
 
 
-def detect_peaks(
-    stem_path: Path, bpm: float, stem_name: str | None = None
-) -> list[dict]:
+def detect_peaks(stem_path: Path, bpm: float, stem_name: str | None = None) -> list[dict]:
     """Detect drum hits in an isolated stem WAV.
 
     Args:
@@ -75,7 +73,7 @@ def detect_peaks(
     sixteenth_duration = 60.0 / bpm / 4.0
     quantize_tolerance = 0.30  # 30% tolerance to preserve swing
 
-    for time_sec, sample in zip(onset_times, onset_samples):
+    for time_sec, sample in zip(onset_times, onset_samples, strict=True):
         # RMS in a window around the onset
         window_samples = int(0.05 * sr)  # 50ms window
         start = max(0, int(sample))
@@ -85,7 +83,7 @@ def detect_peaks(
         if len(segment) == 0:
             continue
 
-        rms = np.sqrt(np.mean(segment ** 2))
+        rms = np.sqrt(np.mean(segment**2))
 
         # Map RMS to MIDI velocity (0-127)
         # Use log scale for more natural dynamics
@@ -105,10 +103,12 @@ def detect_peaks(
         if deviation > quantize_tolerance:
             quantized_time = time_sec
 
-        events.append({
-            "time": round(float(time_sec), 4),
-            "quantized_time": round(float(quantized_time), 4),
-            "velocity": velocity,
-        })
+        events.append(
+            {
+                "time": round(float(time_sec), 4),
+                "quantized_time": round(float(quantized_time), 4),
+                "velocity": velocity,
+            }
+        )
 
     return events

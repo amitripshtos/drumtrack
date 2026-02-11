@@ -55,6 +55,7 @@ build/
 backend/.venv/
 backend/storage/
 backend/models/
+.ruff_cache/
 
 # keep .env.example
 !.env.example

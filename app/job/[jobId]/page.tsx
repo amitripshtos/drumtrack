@@ -1,21 +1,17 @@
 "use client";
 
-import { use, useState } from "react";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { use, useState } from "react";
+import { ClusterReview } from "@/components/cluster-review";
+import { DownloadButton } from "@/components/download-button";
 import { JobProgress } from "@/components/job-progress";
 import { MidiPlayer } from "@/components/midi-player";
-import { DownloadButton } from "@/components/download-button";
-import { ClusterReview } from "@/components/cluster-review";
+import { Button } from "@/components/ui/button";
 import { useJobPolling } from "@/hooks/use-job-polling";
-import { getMidiUrl, getOtherTrackUrl, getDrumTrackUrl, getDrumStemUrl } from "@/lib/api";
+import { getDrumStemUrl, getDrumTrackUrl, getMidiUrl, getOtherTrackUrl } from "@/lib/api";
 
-export default function JobPage({
-  params,
-}: {
-  params: Promise<{ jobId: string }>;
-}) {
+export default function JobPage({ params }: { params: Promise<{ jobId: string }> }) {
   const { jobId } = use(params);
   const { job, error } = useJobPolling(jobId);
   const [midiVersion, setMidiVersion] = useState(0);
@@ -58,16 +54,9 @@ export default function JobPage({
 
         {isComplete && (
           <>
-            <ClusterReview
-              jobId={jobId}
-              onRegenerate={() => setMidiVersion((v) => v + 1)}
-            />
+            <ClusterReview jobId={jobId} onRegenerate={() => setMidiVersion((v) => v + 1)} />
 
-            <MidiPlayer
-              key={midiVersion}
-              jobId={jobId}
-              bpm={job.bpm}
-            />
+            <MidiPlayer key={midiVersion} jobId={jobId} bpm={job.bpm} />
 
             <div className="flex flex-wrap gap-2">
               <DownloadButton
@@ -88,9 +77,7 @@ export default function JobPage({
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Individual Drum Stems
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Individual Drum Stems</h3>
               <div className="flex flex-wrap gap-2">
                 <DownloadButton
                   url={getDrumStemUrl(jobId, "kick")}

@@ -1,8 +1,8 @@
 "use client";
 
-import { JobResponse, STATUS_LABELS } from "@/types";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { JobResponse, STATUS_LABELS } from "@/types";
 
 interface JobProgressProps {
   job: JobResponse;
@@ -41,9 +41,7 @@ export function JobProgress({ job }: JobProgressProps) {
         </div>
 
         {/* Error message */}
-        {isFailed && job.error && (
-          <p className="text-sm text-red-500">{job.error}</p>
-        )}
+        {isFailed && job.error && <p className="text-sm text-red-500">{job.error}</p>}
 
         {/* Job info */}
         <div className="text-xs text-muted-foreground space-y-1">

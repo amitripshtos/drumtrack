@@ -74,9 +74,7 @@ async def poll_until_done(file_id: str, max_wait: int = 600) -> dict:
     raise TimeoutError("LALAL.AI separation timed out")
 
 
-async def download_stems(
-    result: dict, drum_path: Path, other_path: Path
-) -> None:
+async def download_stems(result: dict, drum_path: Path, other_path: Path) -> None:
     """Download drum and other stems from LALAL.AI result."""
     stem_url = result["split"]["stem_track"]
     back_url = result["split"]["back_track"]

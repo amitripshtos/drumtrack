@@ -215,9 +215,7 @@ def _demix(
                     pad_mode = "reflect"
                 else:
                     pad_mode = "constant"
-                part = nn.functional.pad(
-                    part, (0, chunk_size - chunk_len), mode=pad_mode, value=0
-                )
+                part = nn.functional.pad(part, (0, chunk_size - chunk_len), mode=pad_mode, value=0)
 
                 batch_data.append(part)
                 batch_locations.append((i, chunk_len))

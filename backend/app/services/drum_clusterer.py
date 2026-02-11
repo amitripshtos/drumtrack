@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 # Stem -> (drum_type, midi_note, cluster_id)
 STEM_MAPPING = {
-    "kick":    ("kick",         36, 0),
-    "snare":   ("snare",        38, 1),
-    "toms":    ("tom_mid",      47, 2),
-    "hh":      ("closed_hihat", 42, 3),
-    "cymbals": ("crash",        49, 4),
+    "kick": ("kick", 36, 0),
+    "snare": ("snare", 38, 1),
+    "toms": ("tom_mid", 47, 2),
+    "hh": ("closed_hihat", 42, 3),
+    "cymbals": ("crash", 49, 4),
 }
 
 
@@ -121,7 +121,7 @@ def deduplicate_events(events: list[DrumEvent]) -> list[DrumEvent]:
         by_cluster.setdefault(e.cluster_id, []).append(e)
 
     kept: list[DrumEvent] = []
-    for cid, cluster_events in by_cluster.items():
+    for _cid, cluster_events in by_cluster.items():
         cluster_events.sort(key=lambda e: e.time)
         drum_type = cluster_events[0].drum_type
         min_gap_s = DRUM_TYPE_MIN_GAP_MS.get(drum_type, 40) / 1000.0
@@ -181,9 +181,7 @@ def relabel_and_regenerate(
     return events, clusters
 
 
-def _recompute_cluster_stats(
-    events: list[DrumEvent], clusters: list[ClusterInfo]
-) -> None:
+def _recompute_cluster_stats(events: list[DrumEvent], clusters: list[ClusterInfo]) -> None:
     """Update cluster event_count, mean_velocity, representative_time after dedup."""
     event_by_cluster: dict[int, list[DrumEvent]] = {}
     for e in events:
@@ -193,9 +191,7 @@ def _recompute_cluster_stats(
         cevents = event_by_cluster.get(c.id, [])
         c.event_count = len(cevents)
         if cevents:
-            c.mean_velocity = round(
-                sum(e.velocity for e in cevents) / len(cevents), 1
-            )
+            c.mean_velocity = round(sum(e.velocity for e in cevents) / len(cevents), 1)
             times = sorted(e.time for e in cevents)
             c.representative_time = round(times[len(times) // 2], 3)
         else:

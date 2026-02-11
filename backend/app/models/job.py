@@ -1,10 +1,9 @@
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from pydantic import BaseModel
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     pending = "pending"
     downloading_youtube = "downloading_youtube"
     uploading_to_lalal = "uploading_to_lalal"
@@ -21,12 +20,12 @@ class Job(BaseModel):
     status: JobStatus = JobStatus.pending
     bpm: float
     source: str  # "upload" or "youtube"
-    source_url: Optional[str] = None
+    source_url: str | None = None
     separator: str = "demucs"  # "demucs" or "lalal"
-    audio_hash: Optional[str] = None  # SHA-256 of original audio for dedup
-    title: Optional[str] = None
-    created_at: Optional[str] = None
-    error: Optional[str] = None
+    audio_hash: str | None = None  # SHA-256 of original audio for dedup
+    title: str | None = None
+    created_at: str | None = None
+    error: str | None = None
     progress: float = 0.0  # 0-100
 
 
@@ -36,9 +35,9 @@ class JobResponse(BaseModel):
     bpm: float
     source: str
     separator: str = "demucs"
-    title: Optional[str] = None
-    created_at: Optional[str] = None
-    error: Optional[str] = None
+    title: str | None = None
+    created_at: str | None = None
+    error: str | None = None
     progress: float = 0.0
 
 

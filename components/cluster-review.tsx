@@ -1,15 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Play, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { DRUM_COLORS, EventTimeline } from "@/components/event-timeline";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
   Select,
@@ -18,13 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { EventTimeline, DRUM_COLORS } from "@/components/event-timeline";
 import { useAudioSnippets } from "@/hooks/use-audio-snippets";
-import {
-  getClusters,
-  updateClusters,
-  getDrumTrackArrayBuffer,
-} from "@/lib/api";
+import { getClusters, getDrumTrackArrayBuffer, updateClusters } from "@/lib/api";
 import { ClusterInfo, DrumEvent } from "@/types";
 
 const DRUM_TYPES = [
@@ -52,10 +48,7 @@ export function ClusterReview({ jobId, onRegenerate }: ClusterReviewProps) {
   const [regenerating, setRegenerating] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const fetchAudio = useCallback(
-    () => getDrumTrackArrayBuffer(jobId),
-    [jobId]
-  );
+  const fetchAudio = useCallback(() => getDrumTrackArrayBuffer(jobId), [jobId]);
   const { playSnippet, isLoaded: audioLoaded } = useAudioSnippets(fetchAudio);
 
   useEffect(() => {
@@ -101,8 +94,7 @@ export function ClusterReview({ jobId, onRegenerate }: ClusterReviewProps) {
     }
   };
 
-  const totalDuration =
-    events.length > 0 ? Math.max(...events.map((e) => e.time)) + 1 : 0;
+  const totalDuration = events.length > 0 ? Math.max(...events.map((e) => e.time)) + 1 : 0;
 
   if (loading) {
     return (
@@ -121,28 +113,19 @@ export function ClusterReview({ jobId, onRegenerate }: ClusterReviewProps) {
       <CardHeader>
         <CardTitle>Drum Classification Review</CardTitle>
         <CardDescription>
-          {clusters.length} sound groups detected. Adjust labels if needed, then
-          regenerate.
+          {clusters.length} sound groups detected. Adjust labels if needed, then regenerate.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {clusters.map((cluster) => {
-          const clusterEvents = events.filter(
-            (e) => e.cluster_id === cluster.id
-          );
+          const clusterEvents = events.filter((e) => e.cluster_id === cluster.id);
           const currentLabel = labels[String(cluster.id)] || cluster.label;
           const color = DRUM_COLORS[currentLabel] || "#888";
 
           return (
-            <div
-              key={cluster.id}
-              className="flex items-center gap-3 rounded border p-2"
-            >
+            <div key={cluster.id} className="flex items-center gap-3 rounded border p-2">
               {/* Color dot */}
-              <div
-                className="h-3 w-3 shrink-0 rounded-full"
-                style={{ backgroundColor: color }}
-              />
+              <div className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
 
               {/* Label select */}
               <Select
@@ -184,11 +167,7 @@ export function ClusterReview({ jobId, onRegenerate }: ClusterReviewProps) {
 
               {/* Mini timeline */}
               <div className="min-w-0 flex-1">
-                <EventTimeline
-                  events={clusterEvents}
-                  totalDuration={totalDuration}
-                  color={color}
-                />
+                <EventTimeline events={clusterEvents} totalDuration={totalDuration} color={color} />
               </div>
             </div>
           );

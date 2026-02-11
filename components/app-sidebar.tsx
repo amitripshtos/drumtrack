@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { CheckCircle, Loader2, Music, Plus, XCircle } from "lucide-react";
 import Link from "next/link";
-import {
-  CheckCircle,
-  XCircle,
-  Loader2,
-  Plus,
-  Music,
-} from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +15,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { fetchJobs } from "@/lib/api";
 import type { JobResponse } from "@/types";
@@ -38,7 +31,7 @@ function StatusIcon({ status }: { status: string }) {
 
 function jobDisplayTitle(job: JobResponse): string {
   if (job.title) {
-    return job.title.length > 40 ? job.title.slice(0, 37) + "..." : job.title;
+    return job.title.length > 40 ? `${job.title.slice(0, 37)}...` : job.title;
   }
   return `Job ${job.id.slice(0, 8)}`;
 }
@@ -104,9 +97,7 @@ export function AppSidebar() {
                 );
               })}
               {jobs.length === 0 && (
-                <p className="px-3 py-2 text-sm text-muted-foreground">
-                  No jobs yet
-                </p>
+                <p className="px-3 py-2 text-sm text-muted-foreground">No jobs yet</p>
               )}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -114,9 +105,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="px-4 py-2">
-        <p className="text-xs text-muted-foreground">
-          Isolate drums &amp; generate MIDI
-        </p>
+        <p className="text-xs text-muted-foreground">Isolate drums &amp; generate MIDI</p>
       </SidebarFooter>
     </Sidebar>
   );

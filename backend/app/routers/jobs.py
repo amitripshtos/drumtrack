@@ -3,10 +3,10 @@ import json
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
-from app.models.cluster import ClusterInfo, ClusterUpdateRequest, ClustersResponse
+from app.models.cluster import ClusterInfo, ClustersResponse, ClusterUpdateRequest
 from app.models.drum_event import DrumEvent
 from app.models.job import JobResponse
-from app.services.drum_clusterer import deduplicate_events, relabel_and_regenerate
+from app.services.drum_clusterer import relabel_and_regenerate
 from app.services.midi_writer import write_midi
 from app.storage.file_manager import file_manager
 from app.storage.job_store import job_store
@@ -141,9 +141,7 @@ async def update_clusters(job_id: str, req: ClusterUpdateRequest):
     events = [DrumEvent(**e) for e in json.loads(events_path.read_text())]
 
     # Re-label and regenerate
-    events, clusters = relabel_and_regenerate(
-        events, clusters, req.cluster_labels, job.bpm
-    )
+    events, clusters = relabel_and_regenerate(events, clusters, req.cluster_labels, job.bpm)
 
     # Save updated events
     events_data = [e.model_dump() for e in events]

@@ -1,7 +1,7 @@
 "use client";
 
+import { Music, Pause, Play, Square, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Play, Pause, Square, Volume2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMidiPlayer } from "@/hooks/use-midi-player";
@@ -52,11 +52,11 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
   };
 
   // Cleanup on unmount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on unmount
   useEffect(() => {
     return () => {
       player.stop();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatTime = (seconds: number): string => {
@@ -91,9 +91,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
               <Button onClick={player.stop} variant="outline" size="sm">
                 <Square className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-mono ml-2">
-                {formatTime(player.currentTime)}
-              </span>
+              <span className="text-sm font-mono ml-2">{formatTime(player.currentTime)}</span>
               {player.duration > 0 && (
                 <span className="text-xs text-muted-foreground font-mono">
                   / {formatTime(player.duration)}

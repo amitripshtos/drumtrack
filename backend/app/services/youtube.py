@@ -26,11 +26,14 @@ def download_youtube(url: str, output_path: Path) -> Path:
     cmd = [
         "yt-dlp",
         "-x",
-        "--audio-format", "mp3",
-        "--audio-quality", "0",
+        "--audio-format",
+        "mp3",
+        "--audio-quality",
+        "0",
         "--no-playlist",
         "--no-warnings",
-        "-o", str(stem_path) + ".%(ext)s",
+        "-o",
+        str(stem_path) + ".%(ext)s",
         url,
     ]
     result = subprocess.run(

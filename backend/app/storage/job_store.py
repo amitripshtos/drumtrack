@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import Optional
 
 from app.config import settings
 from app.models.job import Job, JobStatus
@@ -43,7 +42,7 @@ class JobStore:
         self._persist(job)
         return job
 
-    def get(self, job_id: str) -> Optional[Job]:
+    def get(self, job_id: str) -> Job | None:
         job = self._jobs.get(job_id)
         if job is not None:
             return job
@@ -64,8 +63,8 @@ class JobStore:
         job_id: str,
         status: JobStatus,
         progress: float = 0.0,
-        error: Optional[str] = None,
-    ) -> Optional[Job]:
+        error: str | None = None,
+    ) -> Job | None:
         job = self._jobs.get(job_id)
         if job is None:
             return None
@@ -76,7 +75,7 @@ class JobStore:
         self._persist(job)
         return job
 
-    def find_by_audio_hash(self, audio_hash: str, exclude_id: str) -> Optional[Job]:
+    def find_by_audio_hash(self, audio_hash: str, exclude_id: str) -> Job | None:
         """Find a completed job with the same audio hash (for stem reuse)."""
         for job in self._jobs.values():
             if (

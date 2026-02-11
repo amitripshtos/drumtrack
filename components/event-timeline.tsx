@@ -20,11 +20,7 @@ interface EventTimelineProps {
   color?: string;
 }
 
-export function EventTimeline({
-  events,
-  totalDuration,
-  color,
-}: EventTimelineProps) {
+export function EventTimeline({ events, totalDuration, color }: EventTimelineProps) {
   if (totalDuration <= 0 || events.length === 0) return null;
 
   return (
@@ -33,11 +29,13 @@ export function EventTimeline({
       height="8"
       viewBox={`0 0 ${totalDuration} 8`}
       preserveAspectRatio="none"
+      role="img"
+      aria-label="Event timeline"
     >
       <rect width={totalDuration} height="8" fill="currentColor" className="text-muted/30" />
-      {events.map((event, i) => (
+      {events.map((event) => (
         <rect
-          key={i}
+          key={`${event.time}-${event.drum_type}`}
           x={event.time}
           y="0"
           width={Math.max(totalDuration * 0.002, 0.02)}

@@ -1,11 +1,11 @@
-import { JobResponse, DrumEvent, ClustersResponse } from "@/types";
+import { ClustersResponse, DrumEvent, JobResponse } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function uploadFile(
   file: File,
   bpm: number,
-  separator: string = "demucs"
+  separator: string = "demucs",
 ): Promise<JobResponse> {
   const form = new FormData();
   form.append("file", file);
@@ -23,7 +23,7 @@ export async function uploadFile(
 export async function submitYouTube(
   url: string,
   bpm: number,
-  separator: string = "demucs"
+  separator: string = "demucs",
 ): Promise<JobResponse> {
   const res = await fetch(`${API_BASE}/api/jobs/youtube`, {
     method: "POST",
@@ -66,7 +66,7 @@ export async function getClusters(jobId: string): Promise<ClustersResponse> {
 
 export async function updateClusters(
   jobId: string,
-  clusterLabels: Record<string, string>
+  clusterLabels: Record<string, string>,
 ): Promise<ClustersResponse> {
   const res = await fetch(`${API_BASE}/api/jobs/${jobId}/clusters`, {
     method: "PUT",
@@ -87,9 +87,7 @@ export function getDrumStemUrl(jobId: string, stemName: string): string {
   return `${API_BASE}/api/jobs/${jobId}/stems/${stemName}`;
 }
 
-export async function getDrumTrackArrayBuffer(
-  jobId: string
-): Promise<ArrayBuffer> {
+export async function getDrumTrackArrayBuffer(jobId: string): Promise<ArrayBuffer> {
   const res = await fetch(`${API_BASE}/api/jobs/${jobId}/drum-track`);
   if (!res.ok) throw new Error(`Failed to get drum track: ${res.statusText}`);
   return res.arrayBuffer();

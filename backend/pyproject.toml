@@ -25,3 +25,24 @@ packages = ["app"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/ml/*" = ["E741", "B007", "RUF059"]
+"app/services/drumsep.py" = ["SIM117", "SIM108", "RUF005", "B905"]
+"app/routers/upload.py" = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
