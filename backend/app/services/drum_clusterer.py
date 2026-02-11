@@ -2,15 +2,20 @@
 
 Uses DrumSep MDX23C to separate drums into 5 stems (kick, snare, toms, hh, cymbals),
 then runs simple peak detection on each isolated stem to find onset times and velocities.
+Post-processing applies hi-hat pattern inference and crash accent/ride analysis.
 """
 
 import logging
 from pathlib import Path
 
+import soundfile as sf
+
 from app.ml.drum_map import DRUM_MAP, DRUM_TYPE_MIN_GAP_MS
 from app.models.cluster import ClusterInfo
 from app.models.drum_event import DrumEvent
+from app.services.crash_analysis import analyze_crash_events
 from app.services.drumsep import separate_drums
+from app.services.hihat_pattern import infer_hihat_pattern
 from app.services.peak_detection import detect_peaks
 
 logger = logging.getLogger(__name__)
@@ -25,6 +30,11 @@ STEM_MAPPING = {
 }
 
 
+def _get_audio_duration(audio_path: Path) -> float:
+    """Get audio duration in seconds without loading the full waveform."""
+    return sf.info(str(audio_path)).duration
+
+
 def quantize_time(time_sec: float, bpm: float) -> float:
     """Snap time to nearest 16th note grid position."""
     sixteenth_duration = 60.0 / bpm / 4.0
@@ -32,21 +42,30 @@ def quantize_time(time_sec: float, bpm: float) -> float:
     return grid_position * sixteenth_duration
 
 
-def detect_cluster_and_label(
-    drum_audio_path: Path, bpm: float
-) -> tuple[list[DrumEvent], list[ClusterInfo]]:
-    """Full pipeline: separate drums into stems, detect peaks, build events.
+def run_drum_separation(drum_audio_path: Path) -> dict[str, Path]:
+    """Separate a drum track into individual instrument stems.
 
-    Returns (events, clusters).
+    Returns dict mapping stem name to WAV path.
     """
-    # Step 1: Separate drum track into 5 stems
     output_dir = drum_audio_path.parent / "stems"
     logger.info(f"Separating drum track into stems -> {output_dir}")
-    stem_paths = separate_drums(drum_audio_path, output_dir)
+    return separate_drums(drum_audio_path, output_dir)
 
-    # Step 2: Detect peaks per stem and build events
+
+def detect_onsets_from_stems(
+    drum_audio_path: Path, bpm: float
+) -> tuple[list[DrumEvent], list[ClusterInfo]]:
+    """Detect peaks in existing stems and build events/clusters.
+
+    Expects stems to already exist at drum_audio_path.parent / "stems/".
+    Returns (events, clusters).
+    """
+    stems_dir = drum_audio_path.parent / "stems"
+    stem_paths = {name: stems_dir / f"{name}.wav" for name in STEM_MAPPING}
+
     all_events: list[DrumEvent] = []
     clusters: list[ClusterInfo] = []
+    stem_events_map: dict[str, list[DrumEvent]] = {}
 
     for stem_name, (drum_type, midi_note, cluster_id) in STEM_MAPPING.items():
         stem_path = stem_paths.get(stem_name)
@@ -75,9 +94,47 @@ def detect_cluster_and_label(
             )
             stem_events.append(event)
 
+        stem_events_map[stem_name] = stem_events
+
+    # Hi-hat pattern inference
+    duration = _get_audio_duration(drum_audio_path)
+
+    if "hh" in stem_events_map:
+        kick_events = stem_events_map.get("kick", [])
+        snare_events = stem_events_map.get("snare", [])
+        stem_events_map["hh"] = infer_hihat_pattern(
+            stem_events_map["hh"],
+            kick_events,
+            snare_events,
+            bpm,
+            duration,
+        )
+
+    # Crash analysis (accent filtering / ride re-labeling)
+    is_riding = False
+    if "cymbals" in stem_events_map:
+        kick_events = stem_events_map.get("kick", [])
+        stem_events_map["cymbals"], is_riding = analyze_crash_events(
+            stem_events_map["cymbals"],
+            kick_events,
+            bpm,
+            duration,
+        )
+
+    # Collect all events and build clusters
+    for stem_name, (drum_type, midi_note, cluster_id) in STEM_MAPPING.items():
+        stem_events = stem_events_map.get(stem_name, [])
+        if not stem_events:
+            continue
+
         all_events.extend(stem_events)
 
-        # Build ClusterInfo for this stem
+        # For ride-relabeled cymbals, use ride label
+        if stem_name == "cymbals" and is_riding:
+            cluster_label = "ride"
+        else:
+            cluster_label = drum_type
+
         mean_vel = sum(e.velocity for e in stem_events) / len(stem_events)
         times = sorted(e.time for e in stem_events)
         representative_time = times[len(times) // 2]
@@ -85,8 +142,8 @@ def detect_cluster_and_label(
         clusters.append(
             ClusterInfo(
                 id=cluster_id,
-                suggested_label=drum_type,
-                label=drum_type,
+                suggested_label=cluster_label,
+                label=cluster_label,
                 suggestion_confidence=0.9,
                 event_count=len(stem_events),
                 mean_velocity=round(mean_vel, 1),
@@ -104,6 +161,17 @@ def detect_cluster_and_label(
     clusters.sort(key=lambda c: c.id)
     logger.info(f"Final: {len(all_events)} events in {len(clusters)} clusters")
     return all_events, clusters
+
+
+def detect_cluster_and_label(
+    drum_audio_path: Path, bpm: float
+) -> tuple[list[DrumEvent], list[ClusterInfo]]:
+    """Full pipeline: separate drums into stems, detect peaks, build events.
+
+    Returns (events, clusters).
+    """
+    run_drum_separation(drum_audio_path)
+    return detect_onsets_from_stems(drum_audio_path, bpm)
 
 
 def deduplicate_events(events: list[DrumEvent]) -> list[DrumEvent]:

@@ -45,3 +45,7 @@ class YouTubeRequest(BaseModel):
     url: str
     bpm: float
     separator: str = "demucs"
+
+
+class RerunRequest(BaseModel):
+    checkpoint: str  # "stem_separation" | "drumsep" | "onset_detection"

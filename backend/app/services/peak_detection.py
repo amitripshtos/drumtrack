@@ -14,14 +14,70 @@ logger = logging.getLogger(__name__)
 
 # Stem-specific onset detection parameters
 STEM_PARAMS: dict[str, dict] = {
-    "kick": {"delta": 0.08, "wait": 3},  # Avoid resonance double-triggers
-    "snare": {"delta": 0.06, "wait": 2},  # Ghost notes can be fast
-    "toms": {"delta": 0.07, "wait": 3},  # Similar to kick
-    "hh": {"delta": 0.05, "wait": 1},  # Hi-hats can be very fast (16ths)
-    "cymbals": {"delta": 0.06, "wait": 4},  # Cymbals ring long, avoid retriggers
+    "kick": {
+        "delta": 0.08,
+        "wait": 3,
+        "backtrack": False,
+        "refine": True,
+        "quantize_tolerance": 0.15,
+    },
+    "snare": {
+        "delta": 0.06,
+        "wait": 2,
+        "backtrack": False,
+        "refine": True,
+        "quantize_tolerance": 0.15,
+    },
+    "toms": {
+        "delta": 0.07,
+        "wait": 3,
+        "backtrack": False,
+        "refine": True,
+        "quantize_tolerance": 0.15,
+    },
+    "hh": {
+        "delta": 0.05,
+        "wait": 1,
+        "backtrack": True,
+        "refine": False,
+        "quantize_tolerance": 0.30,
+    },
+    "cymbals": {
+        "delta": 0.06,
+        "wait": 4,
+        "backtrack": True,
+        "refine": False,
+        "quantize_tolerance": 0.30,
+    },
 }
 
-DEFAULT_PARAMS = {"delta": 0.06, "wait": 2}
+DEFAULT_PARAMS = {
+    "delta": 0.06,
+    "wait": 2,
+    "backtrack": True,
+    "refine": False,
+    "quantize_tolerance": 0.30,
+}
+
+
+def _refine_onset_time(
+    y: np.ndarray, sr: int, coarse_sample: int, window_ms: float = 15.0, threshold_frac: float = 0.3
+) -> int:
+    """Find the true transient attack point near a coarse onset.
+
+    Searches a ±window_ms region around the coarse onset for the first sample
+    that exceeds threshold_frac of the local peak amplitude. This gives
+    sample-accurate timing (~0.02ms at 44.1kHz).
+    """
+    window = int(window_ms / 1000.0 * sr)
+    start = max(0, coarse_sample - window)
+    end = min(len(y), coarse_sample + window)
+    segment = np.abs(y[start:end])
+    peak_val = np.max(segment)
+    if peak_val == 0:
+        return coarse_sample
+    above = np.where(segment >= threshold_frac * peak_val)[0]
+    return start + int(above[0]) if len(above) > 0 else coarse_sample
 
 
 def detect_peaks(stem_path: Path, bpm: float, stem_name: str | None = None) -> list[dict]:
@@ -51,7 +107,7 @@ def detect_peaks(stem_path: Path, bpm: float, stem_name: str | None = None) -> l
         sr=sr,
         units="frames",
         hop_length=512,
-        backtrack=True,
+        backtrack=params.get("backtrack", True),
         pre_max=2,
         post_max=2,
         pre_avg=3,
@@ -63,15 +119,20 @@ def detect_peaks(stem_path: Path, bpm: float, stem_name: str | None = None) -> l
     if len(onset_frames) == 0:
         return []
 
-    onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=512)
     onset_samples = librosa.frames_to_samples(onset_frames, hop_length=512)
+
+    # Sub-frame refinement for percussive stems
+    if params.get("refine", False):
+        onset_samples = np.array([_refine_onset_time(y, sr, int(s)) for s in onset_samples])
+
+    onset_times = onset_samples / sr
 
     logger.info(f"Stem '{stem_name}': detected {len(onset_frames)} raw onsets")
 
     # Measure velocity (RMS amplitude at each onset)
     events = []
     sixteenth_duration = 60.0 / bpm / 4.0
-    quantize_tolerance = 0.30  # 30% tolerance to preserve swing
+    quantize_tolerance = params.get("quantize_tolerance", 0.30)
 
     for time_sec, sample in zip(onset_times, onset_samples, strict=True):
         # RMS in a window around the onset

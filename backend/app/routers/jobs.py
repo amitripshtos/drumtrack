@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from fastapi import APIRouter, HTTPException
@@ -5,13 +6,18 @@ from fastapi.responses import FileResponse
 
 from app.models.cluster import ClusterInfo, ClustersResponse, ClusterUpdateRequest
 from app.models.drum_event import DrumEvent
-from app.models.job import JobResponse
+from app.models.job import JobResponse, RerunRequest
 from app.services.drum_clusterer import relabel_and_regenerate
 from app.services.midi_writer import write_midi
+from app.services.pipeline import run_pipeline
 from app.storage.file_manager import file_manager
 from app.storage.job_store import job_store
 
 VALID_STEM_NAMES = {"kick", "snare", "toms", "hh", "cymbals"}
+VALID_CHECKPOINTS = {"stem_separation", "drumsep", "onset_detection"}
+
+# Hold references to background tasks so they aren't garbage-collected
+_background_tasks: set[asyncio.Task] = set()
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -29,6 +35,42 @@ async def get_job(job_id: str):
     job = job_store.get(job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
+    return JobResponse(**job.model_dump())
+
+
+@router.post("/{job_id}/rerun", response_model=JobResponse)
+async def rerun_job(job_id: str, req: RerunRequest):
+    """Re-run pipeline from a checkpoint, reusing existing artifacts."""
+    if req.checkpoint not in VALID_CHECKPOINTS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid checkpoint. Must be one of: {', '.join(sorted(VALID_CHECKPOINTS))}",
+        )
+
+    job = job_store.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if not file_manager.has_required_artifacts(job_id, req.checkpoint):
+        raise HTTPException(
+            status_code=400,
+            detail="Required artifacts missing for this checkpoint",
+        )
+
+    # Clear downstream artifacts
+    file_manager.clear_from_checkpoint(job_id, req.checkpoint)
+
+    # Reset job status
+    job.error = None
+    job.status = "pending"
+    job.progress = 0.0
+    job_store._persist(job)
+
+    # Launch pipeline from checkpoint
+    task = asyncio.create_task(run_pipeline(job_id, start_from=req.checkpoint))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+
     return JobResponse(**job.model_dump())
 
 

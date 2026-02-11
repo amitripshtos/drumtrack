@@ -7,6 +7,7 @@ import { ClusterReview } from "@/components/cluster-review";
 import { DownloadButton } from "@/components/download-button";
 import { JobProgress } from "@/components/job-progress";
 import { MidiPlayer } from "@/components/midi-player";
+import { RerunControls } from "@/components/rerun-controls";
 import { Button } from "@/components/ui/button";
 import { useJobPolling } from "@/hooks/use-job-polling";
 import { getDrumStemUrl, getDrumTrackUrl, getMidiUrl, getOtherTrackUrl } from "@/lib/api";
@@ -51,6 +52,8 @@ export default function JobPage({ params }: { params: Promise<{ jobId: string }>
         </Link>
 
         <JobProgress job={job} />
+
+        {isComplete && <RerunControls jobId={jobId} />}
 
         {isComplete && (
           <>

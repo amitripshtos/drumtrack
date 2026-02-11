@@ -87,6 +87,16 @@ export function getDrumStemUrl(jobId: string, stemName: string): string {
   return `${API_BASE}/api/jobs/${jobId}/stems/${stemName}`;
 }
 
+export async function rerunJob(jobId: string, checkpoint: string): Promise<JobResponse> {
+  const res = await fetch(`${API_BASE}/api/jobs/${jobId}/rerun`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ checkpoint }),
+  });
+  if (!res.ok) throw new Error(`Rerun failed: ${res.statusText}`);
+  return res.json();
+}
+
 export async function getDrumTrackArrayBuffer(jobId: string): Promise<ArrayBuffer> {
   const res = await fetch(`${API_BASE}/api/jobs/${jobId}/drum-track`);
   if (!res.ok) throw new Error(`Failed to get drum track: ${res.statusText}`);
