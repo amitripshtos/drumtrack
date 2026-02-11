@@ -11,6 +11,7 @@ DrumTrack processes audio through a multi-stage pipeline that combines deep lear
 ## Screenshots
 
 | Scenario | Screenshot |
+| --- | --- |
 | Upload a song or Youtube link | ![image](screenshots/ui-new-job.png) |
 | Get song output | ![image](screenshots/ui-job.png) |
 
