@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Loader2, Music, Plus, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, Drum, Plus, XCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -63,7 +63,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="flex flex-row items-center gap-2 px-4 py-3">
-        <Music className="h-5 w-5" />
+        <Drum className="h-5 w-5" />
         <span className="font-semibold text-lg">DrumTrack</span>
         {/* <SidebarTrigger className="ml-auto" /> */}
       </SidebarHeader>
