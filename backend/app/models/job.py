@@ -17,7 +17,7 @@ class JobStatus(StrEnum):
 class Job(BaseModel):
     id: str
     status: JobStatus = JobStatus.pending
-    bpm: float
+    bpm: float = 0  # 0 means "pending auto-detect"
     source: str  # "upload" or "youtube"
     source_url: str | None = None
     audio_hash: str | None = None  # SHA-256 of original audio for dedup
@@ -30,7 +30,7 @@ class Job(BaseModel):
 class JobResponse(BaseModel):
     id: str
     status: JobStatus
-    bpm: float
+    bpm: float = 0
     source: str
     title: str | None = None
     created_at: str | None = None
@@ -40,7 +40,8 @@ class JobResponse(BaseModel):
 
 class YouTubeRequest(BaseModel):
     url: str
-    bpm: float
+    bpm: float | None = None
+    auto_detect_bpm: bool = False
 
 
 class RerunRequest(BaseModel):

@@ -2,10 +2,15 @@ import { ClustersResponse, DrumEvent, JobResponse } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-export async function uploadFile(file: File, bpm: number): Promise<JobResponse> {
+export async function uploadFile(file: File, bpm?: number): Promise<JobResponse> {
   const form = new FormData();
   form.append("file", file);
-  form.append("bpm", bpm.toString());
+  if (bpm != null) {
+    form.append("bpm", bpm.toString());
+    form.append("auto_detect_bpm", "false");
+  } else {
+    form.append("auto_detect_bpm", "true");
+  }
 
   const res = await fetch(`${API_BASE}/api/jobs/upload`, {
     method: "POST",
@@ -15,11 +20,14 @@ export async function uploadFile(file: File, bpm: number): Promise<JobResponse> 
   return res.json();
 }
 
-export async function submitYouTube(url: string, bpm: number): Promise<JobResponse> {
+export async function submitYouTube(url: string, bpm?: number): Promise<JobResponse> {
+  const body = bpm != null
+    ? { url, bpm }
+    : { url, auto_detect_bpm: true };
   const res = await fetch(`${API_BASE}/api/jobs/youtube`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, bpm }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`YouTube submit failed: ${res.statusText}`);
   return res.json();

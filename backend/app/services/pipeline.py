@@ -54,6 +54,15 @@ async def run_pipeline(job_id: str, start_from: str | None = None) -> None:
             audio_bytes = await asyncio.to_thread(original_path.read_bytes)
             job.audio_hash = hashlib.sha256(audio_bytes).hexdigest()
 
+        # Auto-detect BPM if not provided
+        if job.bpm == 0:
+            from app.services.tempo import detect_tempo
+
+            detected_bpm = await asyncio.to_thread(detect_tempo, original_path)
+            job.bpm = detected_bpm
+            job_store._persist(job)
+            logger.info(f"Auto-detected BPM: {detected_bpm}")
+
         # Step 2: Stem separation (with dedup check)
         if should_run("stem_separation"):
             drum_path = file_manager.drum_path(job_id)

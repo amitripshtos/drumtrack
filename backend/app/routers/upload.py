@@ -19,13 +19,15 @@ _background_tasks: set[asyncio.Task] = set()
 @router.post("/upload", response_model=JobResponse)
 async def upload_file(
     file: UploadFile = File(...),
-    bpm: float = Form(...),
+    bpm: float | None = Form(None),
+    auto_detect_bpm: bool = Form(False),
 ):
     """Create a job from an uploaded MP3 file."""
     job_id = str(uuid.uuid4())
+    effective_bpm = 0 if (auto_detect_bpm or bpm is None) else bpm
     job = Job(
         id=job_id,
-        bpm=bpm,
+        bpm=effective_bpm,
         source="upload",
         title=file.filename or "upload",
         created_at=datetime.now(UTC).isoformat(),
@@ -51,9 +53,10 @@ async def upload_file(
 async def youtube_upload(request: YouTubeRequest):
     """Create a job from a YouTube URL."""
     job_id = str(uuid.uuid4())
+    effective_bpm = 0 if (request.auto_detect_bpm or request.bpm is None) else request.bpm
     job = Job(
         id=job_id,
-        bpm=request.bpm,
+        bpm=effective_bpm,
         source="youtube",
         source_url=request.url,
         title=request.url,

@@ -14,6 +14,7 @@ import type { JobResponse } from "@/types";
 export function UploadForm() {
   const router = useRouter();
   const [mode, setMode] = useState<"upload" | "youtube">("upload");
+  const [bpmMode, setBpmMode] = useState<"auto" | "manual">("auto");
   const [bpm, setBpm] = useState("120");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,10 +36,14 @@ export function UploadForm() {
   });
 
   const handleSubmit = async () => {
-    const bpmNum = parseFloat(bpm);
-    if (Number.isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) {
-      setError("BPM must be between 20 and 300");
-      return;
+    let bpmValue: number | undefined;
+    if (bpmMode === "manual") {
+      const bpmNum = parseFloat(bpm);
+      if (Number.isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) {
+        setError("BPM must be between 20 and 300");
+        return;
+      }
+      bpmValue = bpmNum;
     }
 
     setIsSubmitting(true);
@@ -52,14 +57,14 @@ export function UploadForm() {
           setIsSubmitting(false);
           return;
         }
-        job = await uploadFile(file, bpmNum);
+        job = await uploadFile(file, bpmValue);
       } else {
         if (!youtubeUrl.trim()) {
           setError("Please enter a YouTube URL");
           setIsSubmitting(false);
           return;
         }
-        job = await submitYouTube(youtubeUrl.trim(), bpmNum);
+        job = await submitYouTube(youtubeUrl.trim(), bpmValue);
       }
       router.push(`/job/${job.id}`);
     } catch (e) {
@@ -131,19 +136,42 @@ export function UploadForm() {
 
         {/* BPM input */}
         <div className="space-y-2">
-          <Label htmlFor="bpm">BPM (Tempo)</Label>
-          <Input
-            id="bpm"
-            type="number"
-            min={20}
-            max={300}
-            value={bpm}
-            onChange={(e) => setBpm(e.target.value)}
-            placeholder="120"
-          />
-          <p className="text-xs text-muted-foreground">
-            Enter the BPM of the song for accurate MIDI quantization
-          </p>
+          <Label>BPM (Tempo)</Label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={bpmMode === "auto" ? "default" : "outline"}
+              onClick={() => setBpmMode("auto")}
+              className="flex-1"
+              size="sm"
+            >
+              Auto Detect
+            </Button>
+            <Button
+              type="button"
+              variant={bpmMode === "manual" ? "default" : "outline"}
+              onClick={() => setBpmMode("manual")}
+              className="flex-1"
+              size="sm"
+            >
+              Manual
+            </Button>
+          </div>
+          {bpmMode === "manual" ? (
+            <Input
+              id="bpm"
+              type="number"
+              min={20}
+              max={300}
+              value={bpm}
+              onChange={(e) => setBpm(e.target.value)}
+              placeholder="120"
+            />
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              BPM will be automatically detected from the audio
+            </p>
+          )}
         </div>
 
         {/* Error */}
