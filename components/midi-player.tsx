@@ -1,11 +1,12 @@
 "use client";
 
-import { Music, Pause, Play, Square, Volume2 } from "lucide-react";
+import { Download, Music, Pause, Play, Square, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMidiPlayer } from "@/hooks/use-midi-player";
 import { getEvents, getOtherTrackUrl } from "@/lib/api";
+import { exportMix } from "@/lib/audio-export";
 import { DrumEvent } from "@/types";
 
 /** Convert a 0–100 linear slider value to decibels (-Infinity to 0 dB). */
@@ -15,6 +16,11 @@ function sliderToDb(value: number): number {
   const normalized = (value / 100) ** 2;
   // Map to -40 dB .. 0 dB range
   return 20 * Math.log10(normalized);
+}
+
+function dbToLinear(db: number): number {
+  if (db === -Infinity) return 0;
+  return Math.pow(10, db / 20);
 }
 
 interface MidiPlayerProps {
@@ -29,6 +35,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
   const [initialized, setInitialized] = useState(false);
   const [midiVol, setMidiVol] = useState(80);
   const [backingVol, setBackingVol] = useState(80);
+  const [exporting, setExporting] = useState(false);
 
   const handleInit = async () => {
     setLoading(true);
@@ -48,6 +55,29 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
       console.error("Failed to initialize player:", e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (player.isPlaying) player.pause();
+    setExporting(true);
+    try {
+      const blob = await exportMix(
+        getOtherTrackUrl(jobId),
+        events,
+        dbToLinear(sliderToDb(midiVol)),
+        dbToLinear(sliderToDb(backingVol)),
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "drumtrack-mix.wav";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Export failed:", e);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -90,6 +120,10 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
               )}
               <Button onClick={player.stop} variant="outline" size="sm">
                 <Square className="h-4 w-4" />
+              </Button>
+              <Button onClick={handleExport} variant="outline" size="sm" disabled={exporting}>
+                <Download className="h-4 w-4" />
+                {exporting ? "Exporting..." : "Export WAV"}
               </Button>
               <span className="text-sm font-mono ml-2">{formatTime(player.currentTime)}</span>
               {player.duration > 0 && (

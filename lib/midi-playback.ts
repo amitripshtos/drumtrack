@@ -2,7 +2,7 @@ import * as Tone from "tone";
 import { DrumEvent } from "@/types";
 
 // GM drum note to sample file mapping
-const DRUM_SAMPLES: Record<number, string> = {
+export const DRUM_SAMPLES: Record<number, string> = {
   36: "/samples/kick.wav",
   38: "/samples/snare.wav",
   42: "/samples/hihat-closed.wav",
