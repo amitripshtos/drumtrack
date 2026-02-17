@@ -38,15 +38,16 @@ export async function buildDrumSampleUrls(
 }
 
 export class MidiPlaybackEngine {
-  private players: Map<string, Tone.Player> = new Map();
-  private noteUrls: Record<number, string[]> = {};
+  private _players: Map<string, Tone.Player> = new Map();
+  private _noteUrls: Record<number, string[]> = {};
   private roundRobinIndex: Record<number, number> = {};
-  private backingPlayer: Tone.Player | null = null;
-  private midiVolume: Tone.Volume | null = null;
-  private backingVolume: Tone.Volume | null = null;
+  private _backingPlayer: Tone.Player | null = null;
+  private _midiVolume: Tone.Volume | null = null;
+  private _backingVolume: Tone.Volume | null = null;
   private scheduledEvents: number[] = [];
   private _isLoaded = false;
   private _sampleSet = "default";
+  private _muted = false;
 
   get isLoaded(): boolean {
     return this._isLoaded;
@@ -56,13 +57,54 @@ export class MidiPlaybackEngine {
     return this._sampleSet;
   }
 
+  /** Expose players map for DAW engine to reuse loaded samples */
+  get players(): Map<string, Tone.Player> {
+    return this._players;
+  }
+
+  /** Expose note URL mapping for DAW engine */
+  get noteUrls(): Record<number, string[]> {
+    return this._noteUrls;
+  }
+
+  /** Expose volume nodes for DAW engine to reroute */
+  get midiVolumeNode(): Tone.Volume | null {
+    return this._midiVolume;
+  }
+
+  get backingVolumeNode(): Tone.Volume | null {
+    return this._backingVolume;
+  }
+
+  get backingPlayer(): Tone.Player | null {
+    return this._backingPlayer;
+  }
+
+  /** Mute all output without stopping transport */
+  mute(): void {
+    this._muted = true;
+    if (this._midiVolume) this._midiVolume.mute = true;
+    if (this._backingVolume) this._backingVolume.mute = true;
+  }
+
+  /** Unmute output */
+  unmute(): void {
+    this._muted = false;
+    if (this._midiVolume) this._midiVolume.mute = false;
+    if (this._backingVolume) this._backingVolume.mute = false;
+  }
+
+  get isMuted(): boolean {
+    return this._muted;
+  }
+
   async init(sampleSet: string = "default"): Promise<void> {
     await Tone.start();
     this._sampleSet = sampleSet;
 
     // Create independent volume nodes
-    this.midiVolume = new Tone.Volume(0).toDestination();
-    this.backingVolume = new Tone.Volume(0).toDestination();
+    this._midiVolume = new Tone.Volume(0).toDestination();
+    this._backingVolume = new Tone.Volume(0).toDestination();
 
     await this.loadSamples(sampleSet);
   }
@@ -70,21 +112,21 @@ export class MidiPlaybackEngine {
   private async loadSamples(sampleSet: string): Promise<void> {
     this._isLoaded = false;
     const { noteUrls, allUrls } = await buildDrumSampleUrls(sampleSet);
-    this.noteUrls = noteUrls;
+    this._noteUrls = noteUrls;
     this.roundRobinIndex = {};
 
     // Dispose old players
-    for (const player of this.players.values()) {
+    for (const player of this._players.values()) {
       player.dispose();
     }
-    this.players.clear();
+    this._players.clear();
 
     // Create a Tone.Player per unique URL
     const loadPromises: Promise<void>[] = [];
     for (const url of allUrls) {
-      if (this.players.has(url)) continue;
-      const player = new Tone.Player(url).connect(this.midiVolume!);
-      this.players.set(url, player);
+      if (this._players.has(url)) continue;
+      const player = new Tone.Player(url).connect(this._midiVolume!);
+      this._players.set(url, player);
       loadPromises.push(
         new Promise<void>((resolve) => {
           const check = setInterval(() => {
@@ -107,19 +149,19 @@ export class MidiPlaybackEngine {
   }
 
   async loadBackingTrack(url: string): Promise<void> {
-    if (this.backingPlayer) {
-      this.backingPlayer.dispose();
+    if (this._backingPlayer) {
+      this._backingPlayer.dispose();
     }
 
-    this.backingPlayer = new Tone.Player({
+    this._backingPlayer = new Tone.Player({
       url,
       onload: () => {},
-    }).connect(this.backingVolume!);
+    }).connect(this._backingVolume!);
 
     // Wait for the backing track to load
     await new Promise<void>((resolve) => {
       const check = setInterval(() => {
-        if (this.backingPlayer?.loaded) {
+        if (this._backingPlayer?.loaded) {
           clearInterval(check);
           resolve();
         }
@@ -127,11 +169,11 @@ export class MidiPlaybackEngine {
     });
 
     // Sync to transport
-    this.backingPlayer.sync().start(0);
+    this._backingPlayer.sync().start(0);
   }
 
   private triggerSample(midiNote: number, time: number, velocity: number): void {
-    const urls = this.noteUrls[midiNote];
+    const urls = this._noteUrls[midiNote];
     if (!urls || urls.length === 0) return;
 
     // Round-robin through variants
@@ -139,7 +181,7 @@ export class MidiPlaybackEngine {
     const url = urls[idx % urls.length];
     this.roundRobinIndex[midiNote] = idx + 1;
 
-    const player = this.players.get(url);
+    const player = this._players.get(url);
     if (!player) return;
 
     // Start from beginning with given volume
@@ -184,20 +226,20 @@ export class MidiPlaybackEngine {
   }
 
   get duration(): number {
-    return this.backingPlayer?.buffer?.duration ?? 0;
+    return this._backingPlayer?.buffer?.duration ?? 0;
   }
 
   /** Set MIDI drum volume. 0 = unity, -Infinity = mute. Value in dB. */
   setMidiVolume(db: number): void {
-    if (this.midiVolume) {
-      this.midiVolume.volume.value = db;
+    if (this._midiVolume) {
+      this._midiVolume.volume.value = db;
     }
   }
 
   /** Set backing track volume. 0 = unity, -Infinity = mute. Value in dB. */
   setBackingVolume(db: number): void {
-    if (this.backingVolume) {
-      this.backingVolume.volume.value = db;
+    if (this._backingVolume) {
+      this._backingVolume.volume.value = db;
     }
   }
 
@@ -212,16 +254,16 @@ export class MidiPlaybackEngine {
     this.clearScheduled();
     Tone.getTransport().stop();
     Tone.getTransport().cancel();
-    for (const player of this.players.values()) {
+    for (const player of this._players.values()) {
       player.dispose();
     }
-    this.players.clear();
-    this.backingPlayer?.dispose();
-    this.midiVolume?.dispose();
-    this.backingVolume?.dispose();
-    this.backingPlayer = null;
-    this.midiVolume = null;
-    this.backingVolume = null;
+    this._players.clear();
+    this._backingPlayer?.dispose();
+    this._midiVolume?.dispose();
+    this._backingVolume?.dispose();
+    this._backingPlayer = null;
+    this._midiVolume = null;
+    this._backingVolume = null;
     this._isLoaded = false;
   }
 }

@@ -4,11 +4,13 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { use, useState } from "react";
 import { ClusterReview } from "@/components/cluster-review";
+import { DawPlayerDialog } from "@/components/daw/daw-player-dialog";
 import { DownloadButton } from "@/components/download-button";
 import { JobProgress } from "@/components/job-progress";
 import { MidiPlayer } from "@/components/midi-player";
 import { RerunControls } from "@/components/rerun-controls";
 import { Button } from "@/components/ui/button";
+import { PlayerProvider } from "@/contexts/player-context";
 import { useJobPolling } from "@/hooks/use-job-polling";
 import { getDrumStemUrl, getDrumTrackUrl, getMidiUrl, getOtherTrackUrl } from "@/lib/api";
 
@@ -56,10 +58,12 @@ export default function JobPage({ params }: { params: Promise<{ jobId: string }>
         {isComplete && <RerunControls jobId={jobId} />}
 
         {isComplete && (
-          <>
+          <PlayerProvider key={midiVersion} jobId={jobId} bpm={job.bpm}>
             <ClusterReview jobId={jobId} onRegenerate={() => setMidiVersion((v) => v + 1)} />
 
-            <MidiPlayer key={midiVersion} jobId={jobId} bpm={job.bpm} />
+            <MidiPlayer />
+
+            <DawPlayerDialog />
 
             <div className="flex flex-wrap gap-2">
               <DownloadButton
@@ -109,7 +113,7 @@ export default function JobPage({ params }: { params: Promise<{ jobId: string }>
                 />
               </div>
             </div>
-          </>
+          </PlayerProvider>
         )}
       </div>
     </main>

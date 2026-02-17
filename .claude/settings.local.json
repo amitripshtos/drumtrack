@@ -10,7 +10,9 @@
       "Bash(gh api:*)",
       "Bash(python3:*)",
       "Bash(pnpm biome check:*)",
-      "Bash(uv run ruff check:*)"
+      "Bash(uv run ruff check:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm exec biome:*)"
     ]
   },
   "hooks": {

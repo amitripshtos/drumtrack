@@ -1,7 +1,7 @@
 "use client";
 
-import { Download, Music, Pause, Play, Square, Volume2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Download, Maximize2, Music, Pause, Play, Square, Volume2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,10 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMidiPlayer } from "@/hooks/use-midi-player";
-import { getEvents, getOtherTrackUrl, getSampleSets } from "@/lib/api";
+import { usePlayerContext } from "@/contexts/player-context";
+import { getOtherTrackUrl } from "@/lib/api";
 import { exportMix } from "@/lib/audio-export";
-import { DrumEvent } from "@/types";
 
 /** Convert a 0–100 linear slider value to decibels (-Infinity to 0 dB). */
 function sliderToDb(value: number): number {
@@ -30,51 +29,43 @@ function dbToLinear(db: number): number {
   return 10 ** (db / 20);
 }
 
-interface MidiPlayerProps {
-  jobId: string;
-  bpm: number;
-}
+export function MidiPlayer() {
+  const {
+    isReady,
+    isPlaying,
+    currentTime,
+    duration,
+    events,
+    jobId,
+    bpm,
+    play,
+    pause,
+    stop,
+    seek,
+    initialize,
+    isLoading,
+    sampleSets,
+    currentSampleSet,
+    changeSamples,
+    setMidiVolume,
+    setBackingVolume,
+    openDaw,
+  } = usePlayerContext();
 
-export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
-  const player = useMidiPlayer();
-  const [loading, setLoading] = useState(false);
-  const [events, setEvents] = useState<DrumEvent[]>([]);
-  const [initialized, setInitialized] = useState(false);
   const [midiVol, setMidiVol] = useState(80);
   const [backingVol, setBackingVol] = useState(80);
   const [exporting, setExporting] = useState(false);
-  const [sampleSets, setSampleSets] = useState<string[]>([]);
-  const [currentSampleSet, setCurrentSampleSet] = useState("default");
   const [changingSamples, setChangingSamples] = useState(false);
 
   const handleInit = async () => {
-    setLoading(true);
-    try {
-      // Fetch sample sets and init player in parallel
-      const [sets] = await Promise.all([getSampleSets(), player.init(currentSampleSet)]);
-      setSampleSets(sets);
-
-      // Load backing track and events in parallel
-      const [eventsData] = await Promise.all([
-        getEvents(jobId),
-        player.loadBackingTrack(getOtherTrackUrl(jobId)),
-      ]);
-
-      setEvents(eventsData);
-      player.scheduleEvents(eventsData, bpm);
-      setInitialized(true);
-    } catch (e) {
-      console.error("Failed to initialize player:", e);
-    } finally {
-      setLoading(false);
-    }
+    await initialize();
   };
 
-  const handleSampleSetChange = async (newSet: string) => {
+  const handleSampleSetChange = async (newSet: string | null) => {
+    if (!newSet) return;
     setChangingSamples(true);
-    setCurrentSampleSet(newSet);
     try {
-      await player.changeSamples(newSet);
+      await changeSamples(newSet);
     } catch (e) {
       console.error("Failed to change samples:", e);
     } finally {
@@ -83,7 +74,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
   };
 
   const handleExport = async () => {
-    if (player.isPlaying) player.pause();
+    if (isPlaying) pause();
     setExporting(true);
     try {
       const blob = await exportMix(
@@ -106,14 +97,6 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
     }
   };
 
-  // Cleanup on unmount
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on unmount
-  useEffect(() => {
-    return () => {
-      player.stop();
-    };
-  }, []);
-
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -123,37 +106,44 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>MIDI Player</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          MIDI Player
+          {isReady && (
+            <Button variant="ghost" size="sm" onClick={openDaw} title="Open DAW view">
+              <Maximize2 className="h-4 w-4" />
+            </Button>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!initialized ? (
-          <Button onClick={handleInit} disabled={loading} className="w-full">
-            {loading ? "Loading samples..." : "Load Player"}
+        {!isReady ? (
+          <Button onClick={handleInit} disabled={isLoading} className="w-full">
+            {isLoading ? "Loading samples..." : "Load Player"}
           </Button>
         ) : (
           <>
             {/* Transport controls */}
             <div className="flex items-center gap-2">
-              {player.isPlaying ? (
-                <Button onClick={player.pause} size="sm">
+              {isPlaying ? (
+                <Button onClick={pause} size="sm">
                   <Pause className="h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={player.play} size="sm">
+                <Button onClick={play} size="sm">
                   <Play className="h-4 w-4" />
                 </Button>
               )}
-              <Button onClick={player.stop} variant="outline" size="sm">
+              <Button onClick={stop} variant="outline" size="sm">
                 <Square className="h-4 w-4" />
               </Button>
               <Button onClick={handleExport} variant="outline" size="sm" disabled={exporting}>
                 <Download className="h-4 w-4" />
                 {exporting ? "Exporting..." : "Export WAV"}
               </Button>
-              <span className="text-sm font-mono ml-2">{formatTime(player.currentTime)}</span>
-              {player.duration > 0 && (
+              <span className="text-sm font-mono ml-2">{formatTime(currentTime)}</span>
+              {duration > 0 && (
                 <span className="text-xs text-muted-foreground font-mono">
-                  / {formatTime(player.duration)}
+                  / {formatTime(duration)}
                 </span>
               )}
             </div>
@@ -185,14 +175,14 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
             )}
 
             {/* Seek slider */}
-            {player.duration > 0 && (
+            {duration > 0 && (
               <input
                 type="range"
                 min={0}
-                max={player.duration}
+                max={duration}
                 step={0.1}
-                value={player.currentTime}
-                onChange={(e) => player.seek(Number(e.target.value))}
+                value={currentTime}
+                onChange={(e) => seek(Number(e.target.value))}
                 className="h-1.5 w-full accent-foreground"
               />
             )}
@@ -210,7 +200,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
                   onChange={(e) => {
                     const v = Number(e.target.value);
                     setMidiVol(v);
-                    player.setMidiVolume(sliderToDb(v));
+                    setMidiVolume(sliderToDb(v));
                   }}
                   className="h-1.5 w-full accent-foreground"
                 />
@@ -226,7 +216,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
                   onChange={(e) => {
                     const v = Number(e.target.value);
                     setBackingVol(v);
-                    player.setBackingVolume(sliderToDb(v));
+                    setBackingVolume(sliderToDb(v));
                   }}
                   className="h-1.5 w-full accent-foreground"
                 />
