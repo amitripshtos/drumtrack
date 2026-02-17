@@ -13,5 +13,13 @@ class Settings(BaseSettings):
     def jobs_dir(self) -> Path:
         return self.storage_dir / "jobs"
 
+    @property
+    def samples_dir(self) -> Path:
+        return self.storage_dir / "samples"
+
+    @property
+    def static_samples_dir(self) -> Path:
+        return Path(__file__).resolve().parent.parent / "static" / "samples"
+
 
 settings = Settings()

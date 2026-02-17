@@ -4,8 +4,15 @@ import { Download, Music, Pause, Play, Square, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMidiPlayer } from "@/hooks/use-midi-player";
-import { getEvents, getOtherTrackUrl } from "@/lib/api";
+import { getEvents, getOtherTrackUrl, getSampleSets } from "@/lib/api";
 import { exportMix } from "@/lib/audio-export";
 import { DrumEvent } from "@/types";
 
@@ -20,7 +27,7 @@ function sliderToDb(value: number): number {
 
 function dbToLinear(db: number): number {
   if (db === -Infinity) return 0;
-  return Math.pow(10, db / 20);
+  return 10 ** (db / 20);
 }
 
 interface MidiPlayerProps {
@@ -36,11 +43,16 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
   const [midiVol, setMidiVol] = useState(80);
   const [backingVol, setBackingVol] = useState(80);
   const [exporting, setExporting] = useState(false);
+  const [sampleSets, setSampleSets] = useState<string[]>([]);
+  const [currentSampleSet, setCurrentSampleSet] = useState("default");
+  const [changingSamples, setChangingSamples] = useState(false);
 
   const handleInit = async () => {
     setLoading(true);
     try {
-      await player.init();
+      // Fetch sample sets and init player in parallel
+      const [sets] = await Promise.all([getSampleSets(), player.init(currentSampleSet)]);
+      setSampleSets(sets);
 
       // Load backing track and events in parallel
       const [eventsData] = await Promise.all([
@@ -58,6 +70,18 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
     }
   };
 
+  const handleSampleSetChange = async (newSet: string) => {
+    setChangingSamples(true);
+    setCurrentSampleSet(newSet);
+    try {
+      await player.changeSamples(newSet);
+    } catch (e) {
+      console.error("Failed to change samples:", e);
+    } finally {
+      setChangingSamples(false);
+    }
+  };
+
   const handleExport = async () => {
     if (player.isPlaying) player.pause();
     setExporting(true);
@@ -67,6 +91,7 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
         events,
         dbToLinear(sliderToDb(midiVol)),
         dbToLinear(sliderToDb(backingVol)),
+        currentSampleSet,
       );
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -132,6 +157,32 @@ export function MidiPlayer({ jobId, bpm }: MidiPlayerProps) {
                 </span>
               )}
             </div>
+
+            {/* Sample set selector */}
+            {sampleSets.length > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground shrink-0">Sample Kit</span>
+                <Select
+                  value={currentSampleSet}
+                  onValueChange={handleSampleSetChange}
+                  disabled={changingSamples}
+                >
+                  <SelectTrigger className="w-40 text-sm h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sampleSets.map((set) => (
+                      <SelectItem key={set} value={set}>
+                        {set}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {changingSamples && (
+                  <span className="text-xs text-muted-foreground">Loading...</span>
+                )}
+              </div>
+            )}
 
             {/* Seek slider */}
             {player.duration > 0 && (

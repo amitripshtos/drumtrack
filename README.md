@@ -122,7 +122,6 @@ drumtrack/
   hooks/                  # React hooks (polling, MIDI player)
   lib/                    # API client, MIDI playback engine
   types/                  # TypeScript type definitions
-  public/samples/         # Synthesized drum WAV samples for playback
   backend/
     app/
       routers/            # FastAPI endpoints
@@ -131,7 +130,12 @@ drumtrack/
       storage/            # Job persistence, file management
       ml/                 # MDX23C neural network definition
     models/               # Downloaded model weights (gitignored)
-    storage/jobs/         # Job artifacts per UUID (gitignored)
+    static/
+      samples/
+        default/          # Built-in sample set (9 WAVs + kit.json)
+    storage/
+      jobs/               # Job artifacts per UUID (gitignored)
+      samples/            # User-created sample sets (gitignored)
 ```
 
 - **Frontend**: Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Tone.js
@@ -202,5 +206,39 @@ The sidebar shows all previous jobs. Jobs persist across server restarts.
 | `GET` | `/api/jobs/{id}/events` | Get drum events as JSON |
 | `GET` | `/api/jobs/{id}/clusters` | Get clusters and events |
 | `PUT` | `/api/jobs/{id}/clusters` | Update cluster labels, regenerate MIDI |
+| `GET` | `/api/samples` | List available sample sets |
+| `GET` | `/api/samples/{set}` | Get kit manifest (instrument → WAV files) |
+| `GET` | `/api/samples/{set}/{file}` | Serve a sample WAV file |
 
 Stem names: `kick`, `snare`, `toms`, `hh`, `cymbals`.
+
+## Sample Kits
+
+Each sample kit is a directory containing WAV files and a `kit.json` manifest that maps instrument names to one or more sample files (for round-robin variation):
+
+```json
+{
+  "kick": ["kick.wav"],
+  "snare": ["snare.wav", "snare-alt.wav"],
+  "hihat-closed": ["hihat-closed.wav"],
+  "hihat-open": ["hihat-open.wav"],
+  "tom-low": ["tom-low.wav"],
+  "tom-mid": ["tom-mid.wav"],
+  "tom-high": ["tom-high.wav"],
+  "crash": ["crash.wav"],
+  "ride": ["ride.wav"]
+}
+```
+
+When multiple files are listed for an instrument, the player cycles through them on each hit (round-robin) for a more natural sound.
+
+The built-in `default` kit lives in `backend/static/samples/default/` and is committed to git.
+
+### Adding a Custom Kit
+
+1. Create a new folder under `backend/storage/samples/` (e.g., `backend/storage/samples/my-kit/`)
+2. Add your WAV files to the folder
+3. Create a `kit.json` mapping instrument names to filenames (see format above)
+4. Refresh the player — your custom kit will appear in the "Sample Kit" dropdown
+
+Only kits with a valid `kit.json` are listed. The API merges kits from both `backend/static/samples/` (built-in) and `backend/storage/samples/` (user-created).

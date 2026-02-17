@@ -1,0 +1,11 @@
+{
+  "snare": ["snare.wav"],
+  "kick": ["kick.wav"],
+  "hihat-closed": ["hihat-closed.wav"],
+  "hihat-open": ["hihat-open.wav"],
+  "tom-low": ["tom-low.wav"],
+  "tom-mid": ["tom-mid.wav"],
+  "tom-high": ["tom-high.wav"],
+  "crash": ["crash.wav"],
+  "ride": ["ride.wav"]
+}

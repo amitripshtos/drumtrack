@@ -44,6 +44,9 @@ export interface ClustersResponse {
   events: DrumEvent[];
 }
 
+/** Maps instrument name → array of WAV filenames (for round-robin). */
+export type SampleKit = Record<string, string[]>;
+
 export const STATUS_LABELS: Record<JobStatus, string> = {
   pending: "Pending",
   downloading_youtube: "Downloading from YouTube",

@@ -1,4 +1,4 @@
-import { ClustersResponse, DrumEvent, JobResponse } from "@/types";
+import { ClustersResponse, DrumEvent, JobResponse, SampleKit } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -21,9 +21,7 @@ export async function uploadFile(file: File, bpm?: number): Promise<JobResponse>
 }
 
 export async function submitYouTube(url: string, bpm?: number): Promise<JobResponse> {
-  const body = bpm != null
-    ? { url, bpm }
-    : { url, auto_detect_bpm: true };
+  const body = bpm != null ? { url, bpm } : { url, auto_detect_bpm: true };
   const res = await fetch(`${API_BASE}/api/jobs/youtube`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -100,4 +98,20 @@ export async function getDrumTrackArrayBuffer(jobId: string): Promise<ArrayBuffe
   const res = await fetch(`${API_BASE}/api/jobs/${jobId}/drum-track`);
   if (!res.ok) throw new Error(`Failed to get drum track: ${res.statusText}`);
   return res.arrayBuffer();
+}
+
+export async function getSampleSets(): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/api/samples`);
+  if (!res.ok) throw new Error(`Failed to get sample sets: ${res.statusText}`);
+  return res.json();
+}
+
+export function getSampleUrl(setName: string, fileName: string): string {
+  return `${API_BASE}/api/samples/${setName}/${fileName}`;
+}
+
+export async function getSampleKit(setName: string): Promise<SampleKit> {
+  const res = await fetch(`${API_BASE}/api/samples/${setName}`);
+  if (!res.ok) throw new Error(`Failed to get sample kit: ${res.statusText}`);
+  return res.json();
 }

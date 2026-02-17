@@ -1,5 +1,5 @@
+import { buildDrumSampleUrls } from "@/lib/midi-playback";
 import { DrumEvent } from "@/types";
-import { DRUM_SAMPLES } from "@/lib/midi-playback";
 
 function encodeWav(audioBuffer: AudioBuffer): Blob {
   const numChannels = audioBuffer.numberOfChannels;
@@ -58,6 +58,7 @@ export async function exportMix(
   events: DrumEvent[],
   midiGain: number,
   backingGain: number,
+  sampleSet: string = "default",
 ): Promise<Blob> {
   // Use a temporary online AudioContext for decoding
   const tempCtx = new AudioContext();
@@ -69,17 +70,21 @@ export async function exportMix(
 
   // Collect unique MIDI notes used in events
   const usedNotes = new Set(events.map((e) => e.midi_note));
+  const { noteUrls } = await buildDrumSampleUrls(sampleSet);
 
-  // Fetch and decode all needed drum samples in parallel
-  const sampleBuffers = new Map<number, AudioBuffer>();
+  // Fetch and decode all sample variants in parallel
+  const sampleBuffers = new Map<string, AudioBuffer>();
+  const urlsToFetch = new Set<string>();
+  for (const note of usedNotes) {
+    const urls = noteUrls[note];
+    if (urls) for (const u of urls) urlsToFetch.add(u);
+  }
   await Promise.all(
-    [...usedNotes].map(async (note) => {
-      const samplePath = DRUM_SAMPLES[note];
-      if (!samplePath) return;
-      const res = await fetch(samplePath);
+    [...urlsToFetch].map(async (url) => {
+      const res = await fetch(url);
       const arr = await res.arrayBuffer();
       const decoded = await tempCtx.decodeAudioData(arr);
-      sampleBuffers.set(note, decoded);
+      sampleBuffers.set(url, decoded);
     }),
   );
 
@@ -99,9 +104,17 @@ export async function exportMix(
   backingGainNode.connect(offlineCtx.destination);
   backingSource.start(0);
 
-  // Wire each drum event
+  // Wire each drum event with round-robin
+  const roundRobinIndex: Record<number, number> = {};
   for (const event of events) {
-    const sampleBuffer = sampleBuffers.get(event.midi_note);
+    const urls = noteUrls[event.midi_note];
+    if (!urls || urls.length === 0) continue;
+
+    const idx = roundRobinIndex[event.midi_note] ?? 0;
+    const url = urls[idx % urls.length];
+    roundRobinIndex[event.midi_note] = idx + 1;
+
+    const sampleBuffer = sampleBuffers.get(url);
     if (!sampleBuffer) continue;
 
     const source = offlineCtx.createBufferSource();

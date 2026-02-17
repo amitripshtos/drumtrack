@@ -19,10 +19,10 @@ export function useMidiPlayer() {
     };
   }, []);
 
-  const init = useCallback(async () => {
+  const init = useCallback(async (sampleSet: string = "default") => {
     if (engineRef.current) return;
     const engine = new MidiPlaybackEngine();
-    await engine.init();
+    await engine.init(sampleSet);
     engineRef.current = engine;
     setIsReady(true);
   }, []);
@@ -83,6 +83,11 @@ export function useMidiPlayer() {
     engineRef.current?.setBackingVolume(db);
   }, []);
 
+  const changeSamples = useCallback(async (sampleSet: string) => {
+    if (!engineRef.current) return;
+    await engineRef.current.changeSamples(sampleSet);
+  }, []);
+
   return {
     isReady,
     isPlaying,
@@ -97,5 +102,6 @@ export function useMidiPlayer() {
     seek,
     setMidiVolume,
     setBackingVolume,
+    changeSamples,
   };
 }

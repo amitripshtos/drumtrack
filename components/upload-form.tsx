@@ -30,7 +30,12 @@ export function UploadForm() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "audio/mpeg": [".mp3"], "audio/wav": [".wav"] },
+    accept: {
+      "audio/mpeg": [".mp3"],
+      "audio/wav": [".wav"],
+      "audio/mp4": [".m4a"],
+      "audio/x-m4a": [".m4a"],
+    },
     maxFiles: 1,
     maxSize: 50 * 1024 * 1024, // 50MB
   });
@@ -118,7 +123,7 @@ export function UploadForm() {
               <p className="text-sm text-muted-foreground">Drop the file here</p>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Drag & drop an MP3 here, or click to select
+                Drag & drop an MP3/M4A here, or click to select
               </p>
             )}
           </div>
