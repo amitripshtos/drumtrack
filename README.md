@@ -14,6 +14,7 @@ DrumTrack processes audio through a multi-stage pipeline that combines deep lear
 | --- | --- |
 | Upload a song or Youtube link | ![image](screenshots/ui-new-job.png) |
 | Get song output | ![image](screenshots/ui-job.png) |
+| Midi player | ![image](screenshots/midi-player.png) |
 
 ## Examples
 | Input | Output (drums are midi) |
