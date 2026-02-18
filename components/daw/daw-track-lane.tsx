@@ -44,7 +44,9 @@ export function DawTrackLane({
     ctx.clearRect(0, 0, width, height);
 
     // Background
-    ctx.fillStyle = "#0a0a0b";
+    ctx.fillStyle = getComputedStyle(document.documentElement)
+      .getPropertyValue("--background")
+      .trim();
     ctx.fillRect(0, 0, width, height);
 
     // Total content width based on duration

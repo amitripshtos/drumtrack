@@ -86,56 +86,39 @@ export function DawTopBar() {
   );
 
   return (
-    <div className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 gap-3 shrink-0">
+    <div className="h-12 bg-card border-b border-border flex items-center px-4 gap-3 shrink-0">
       {/* Transport */}
       <div className="flex items-center gap-1">
         {isPlaying ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-zinc-300 hover:text-white"
-            onClick={pause}
-          >
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={pause}>
             <Pause className="h-4 w-4" />
           </Button>
         ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-zinc-300 hover:text-white"
-            onClick={play}
-          >
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={play}>
             <Play className="h-4 w-4" />
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0 text-zinc-300 hover:text-white"
-          onClick={stop}
-        >
+        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={stop}>
           <Square className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       {/* Time display */}
-      <div className="font-mono text-sm text-zinc-200 min-w-[100px]">
+      <div className="font-mono text-sm text-foreground min-w-[100px]">
         {formatTime(currentTime)}
         {duration > 0 && (
-          <span className="text-zinc-500 text-xs ml-1">/ {formatTime(duration)}</span>
+          <span className="text-muted-foreground text-xs ml-1">/ {formatTime(duration)}</span>
         )}
       </div>
 
       {/* BPM */}
-      <div className="text-xs text-zinc-400 font-mono">{bpm} BPM</div>
+      <div className="text-xs text-muted-foreground font-mono">{bpm} BPM</div>
 
       {/* Metronome */}
       <Button
         variant="ghost"
         size="sm"
-        className={`h-7 px-2 text-xs ${
-          metronome ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-zinc-200"
-        }`}
+        className={`h-7 px-2 text-xs ${metronome ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}
         onClick={toggleMetronome}
       >
         Click
@@ -148,7 +131,7 @@ export function DawTopBar() {
           onValueChange={handleSampleSetChange}
           disabled={changingSamples}
         >
-          <SelectTrigger className="w-32 text-xs h-7 bg-zinc-800 border-zinc-700 text-zinc-200">
+          <SelectTrigger className="w-32 text-xs h-7">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -167,7 +150,7 @@ export function DawTopBar() {
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 text-xs text-zinc-400 hover:text-zinc-200"
+        className="h-7 text-xs text-muted-foreground hover:text-foreground"
         onClick={handleExportMaster}
         disabled={exporting}
       >
@@ -181,7 +164,7 @@ export function DawTopBar() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 text-zinc-400 hover:text-white"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
           />
         }
       >

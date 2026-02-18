@@ -26,16 +26,21 @@ export function DawTimeRuler({ width, duration, scrollLeft, pixelsPerSecond }: D
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, 28);
 
+    const style = getComputedStyle(document.documentElement);
+    const bgColor = style.getPropertyValue("--card").trim();
+    const borderColor = style.getPropertyValue("--border").trim();
+    const textColor = style.getPropertyValue("--muted-foreground").trim();
+
     // Background
-    ctx.fillStyle = "#18181b";
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width, 28);
 
     // Draw second markers
     const startSec = Math.floor(scrollLeft / pixelsPerSecond);
     const endSec = Math.ceil((scrollLeft + width) / pixelsPerSecond);
 
-    ctx.strokeStyle = "#3f3f46";
-    ctx.fillStyle = "#71717a";
+    ctx.strokeStyle = borderColor;
+    ctx.fillStyle = textColor;
     ctx.font = "10px monospace";
     ctx.textAlign = "center";
 
@@ -63,7 +68,7 @@ export function DawTimeRuler({ width, duration, scrollLeft, pixelsPerSecond }: D
       const startBeat = Math.floor(scrollLeft / pixelsPerSecond / secondsPerBeat);
       const endBeat = Math.ceil((scrollLeft + width) / pixelsPerSecond / secondsPerBeat);
 
-      ctx.strokeStyle = "#27272a";
+      ctx.strokeStyle = borderColor;
       for (let b = startBeat; b <= endBeat; b++) {
         const x = b * secondsPerBeat * pixelsPerSecond - scrollLeft;
         if (x < 0 || x > width) continue;
@@ -93,7 +98,7 @@ export function DawTimeRuler({ width, duration, scrollLeft, pixelsPerSecond }: D
     <canvas
       ref={canvasRef}
       style={{ width, height: 28 }}
-      className="cursor-pointer block"
+      className="cursor-pointer block border-b border-border"
       onClick={handleClick}
     />
   );

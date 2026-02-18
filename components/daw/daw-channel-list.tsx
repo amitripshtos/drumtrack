@@ -23,12 +23,9 @@ export function DawChannelList({
   onScroll,
 }: DawChannelListProps) {
   return (
-    <div className="w-[200px] bg-zinc-900 border-r border-zinc-800 flex flex-col flex-shrink-0">
+    <div className="w-[200px] bg-muted/50 border-r border-border flex flex-col flex-shrink-0">
       {/* Spacer matching the time ruler height */}
-      <div
-        className="shrink-0 border-b border-zinc-800 bg-zinc-900"
-        style={{ height: TIME_RULER_HEIGHT }}
-      />
+      <div className="shrink-0 border-b border-border" style={{ height: TIME_RULER_HEIGHT }} />
       <div ref={scrollRef} className="flex-1 overflow-y-auto" onScroll={onScroll}>
         {channels.map((ch) => (
           <DawChannelStrip

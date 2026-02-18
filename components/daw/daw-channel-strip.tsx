@@ -74,27 +74,26 @@ export function DawChannelStrip({
     }
   }, [dawEngine, channel, events, jobId, currentSampleSet]);
 
-  // Convert dB slider: -20 to +6 range, mapped to slider 0-100
   const dbToSlider = (db: number) => ((db + 20) / 26) * 100;
   const sliderToDb = (val: number) => (val / 100) * 26 - 20;
 
   return (
     <div
-      className="flex flex-col justify-center gap-1.5 px-3 border-b border-zinc-800 box-border"
+      className="flex flex-col justify-center gap-1.5 px-3 border-b border-border box-border"
       style={{ height: LANE_HEIGHT }}
     >
-      {/* Row 1: Channel name with color indicator */}
+      {/* Row 1: color dot + name */}
       <div className="flex items-center gap-1.5">
         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <span className="text-[10px] font-medium text-zinc-200 truncate">{label}</span>
+        <span className="text-[10px] font-medium text-foreground truncate">{label}</span>
       </div>
 
-      {/* Row 2: Volume fader */}
+      {/* Row 2: volume fader */}
       <div className="flex items-center gap-1.5">
         {channel.muted ? (
-          <VolumeX className="h-2.5 w-2.5 text-zinc-500 shrink-0" />
+          <VolumeX className="h-2.5 w-2.5 text-muted-foreground shrink-0" />
         ) : (
-          <Volume2 className="h-2.5 w-2.5 text-zinc-400 shrink-0" />
+          <Volume2 className="h-2.5 w-2.5 text-muted-foreground shrink-0" />
         )}
         <input
           type="range"
@@ -102,23 +101,23 @@ export function DawChannelStrip({
           max={100}
           value={dbToSlider(channel.volume)}
           onChange={(e) => onVolumeChange(channel.id, sliderToDb(Number(e.target.value)))}
-          className="h-1 w-full accent-zinc-400"
+          className="h-1 w-full accent-foreground"
         />
-        <span className="text-[9px] text-zinc-500 font-mono w-8 text-right shrink-0">
+        <span className="text-[9px] text-muted-foreground font-mono w-8 text-right shrink-0">
           {channel.volume > 0 ? "+" : ""}
           {channel.volume.toFixed(0)}
         </span>
       </div>
 
-      {/* Row 3: M/S on left, export dropdown on right */}
+      {/* Row 3: M/S left, export right */}
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="sm"
           className={`h-4 px-1 text-[9px] font-bold min-w-0 ${
             channel.muted
-              ? "bg-yellow-600 text-black hover:bg-yellow-500"
-              : "text-zinc-500 hover:text-zinc-200"
+              ? "bg-yellow-500 text-black hover:bg-yellow-400"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           onClick={() => onToggleMute(channel.id)}
         >
@@ -129,8 +128,8 @@ export function DawChannelStrip({
           size="sm"
           className={`h-4 px-1 text-[9px] font-bold min-w-0 ${
             channel.solo
-              ? "bg-blue-600 text-white hover:bg-blue-500"
-              : "text-zinc-500 hover:text-zinc-200"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           onClick={() => onToggleSolo(channel.id)}
         >
@@ -145,7 +144,7 @@ export function DawChannelStrip({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-4 px-1 text-zinc-500 hover:text-zinc-300 min-w-0"
+                className="h-4 px-1 text-muted-foreground hover:text-foreground min-w-0"
                 disabled={exporting}
               />
             }
