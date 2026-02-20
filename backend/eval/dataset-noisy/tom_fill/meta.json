@@ -1,0 +1,8 @@
+{
+  "bpm": 120.0,
+  "duration_s": 17.875,
+  "midi_file": "eval/midis/tom_fill.mid",
+  "kit_json": "storage/samples/test/kit.json",
+  "snr_db": 10.0,
+  "event_count": 72
+}

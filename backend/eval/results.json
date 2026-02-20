@@ -1,0 +1,408 @@
+[
+  {
+    "sample": "half_time",
+    "bpm": 120.0,
+    "gt_events": 48,
+    "pred_events": 47,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1": 0.9333,
+        "tp": 7,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 32,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9792,
+        "f1": 0.9895,
+        "tp": 47,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "onset_mae_ms": 3.717,
+    "vel_rmse": 29.504
+  },
+  {
+    "sample": "kick_heavy",
+    "bpm": 120.0,
+    "gt_events": 72,
+    "pred_events": 70,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.9688,
+        "f1": 0.9841,
+        "tp": 31,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 32,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1": 0.9333,
+        "tp": 7,
+        "fp": 0,
+        "fn": 1
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9722,
+        "f1": 0.9859,
+        "tp": 70,
+        "fp": 0,
+        "fn": 2
+      }
+    },
+    "onset_mae_ms": 4.06,
+    "vel_rmse": 27.904
+  },
+  {
+    "sample": "open_hihat",
+    "bpm": 120.0,
+    "gt_events": 72,
+    "pred_events": 63,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.9375,
+        "f1": 0.9677,
+        "tp": 15,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8889,
+        "tp": 32,
+        "fp": 0,
+        "fn": 8
+      },
+      "cymbals": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1": 0.9333,
+        "tp": 63,
+        "fp": 0,
+        "fn": 9
+      }
+    },
+    "onset_mae_ms": 3.014,
+    "vel_rmse": 22.582
+  },
+  {
+    "sample": "ride_groove",
+    "bpm": 120.0,
+    "gt_events": 96,
+    "pred_events": 95,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.9375,
+        "f1": 0.9677,
+        "tp": 15,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 64,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9896,
+        "f1": 0.9948,
+        "tp": 95,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "onset_mae_ms": 0.241,
+    "vel_rmse": 8.98
+  },
+  {
+    "sample": "rock_beat",
+    "bpm": 120.0,
+    "gt_events": 96,
+    "pred_events": 95,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.9375,
+        "f1": 0.9677,
+        "tp": 15,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 64,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9896,
+        "f1": 0.9948,
+        "tp": 95,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "onset_mae_ms": 0.241,
+    "vel_rmse": 28.106
+  },
+  {
+    "sample": "rock_beat_16ths",
+    "bpm": 120.0,
+    "gt_events": 160,
+    "pred_events": 159,
+    "fm": {
+      "kick": {
+        "precision": 1.0,
+        "recall": 0.9375,
+        "f1": 0.9677,
+        "tp": 15,
+        "fp": 0,
+        "fn": 1
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 16,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "hh": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 128,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9938,
+        "f1": 0.9969,
+        "tp": 159,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "onset_mae_ms": 0.144,
+    "vel_rmse": 28.412
+  },
+  {
+    "sample": "tom_fill",
+    "bpm": 120.0,
+    "gt_events": 72,
+    "pred_events": 71,
+    "fm": {
+      "kick": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "snare": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0
+      },
+      "toms": {
+        "precision": 1.0,
+        "recall": 0.9844,
+        "f1": 0.9921,
+        "tp": 63,
+        "fp": 0,
+        "fn": 1
+      },
+      "hh": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "cymbals": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "overall": {
+        "precision": 1.0,
+        "recall": 0.9861,
+        "f1": 0.993,
+        "tp": 71,
+        "fp": 0,
+        "fn": 1
+      }
+    },
+    "onset_mae_ms": 1.462,
+    "vel_rmse": 8.862
+  }
+]

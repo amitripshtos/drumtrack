@@ -1,0 +1,8 @@
+{
+  "bpm": 120.0,
+  "duration_s": 17.5,
+  "midi_file": "eval/midis/half_time.mid",
+  "kit_json": "storage/samples/test/kit.json",
+  "snr_db": 10.0,
+  "event_count": 48
+}

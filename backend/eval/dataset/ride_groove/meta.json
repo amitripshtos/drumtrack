@@ -1,0 +1,8 @@
+{
+  "bpm": 120.0,
+  "duration_s": 17.75,
+  "midi_file": "eval/midis/ride_groove.mid",
+  "kit_json": "storage/samples/test/kit.json",
+  "snr_db": null,
+  "event_count": 96
+}

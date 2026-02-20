@@ -1,0 +1,650 @@
+[
+  {
+    "time": 0.0,
+    "quantized_time": 0.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 0.0,
+    "quantized_time": 0.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 0.5,
+    "quantized_time": 0.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 0.5,
+    "quantized_time": 0.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 0.75,
+    "quantized_time": 0.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 1.0,
+    "quantized_time": 1.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 1.0,
+    "quantized_time": 1.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 1.5,
+    "quantized_time": 1.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 1.5,
+    "quantized_time": 1.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 2.0,
+    "quantized_time": 2.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 2.0,
+    "quantized_time": 2.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 2.5,
+    "quantized_time": 2.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 2.5,
+    "quantized_time": 2.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 2.75,
+    "quantized_time": 2.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 3.0,
+    "quantized_time": 3.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 3.0,
+    "quantized_time": 3.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 3.5,
+    "quantized_time": 3.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 3.5,
+    "quantized_time": 3.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 4.0,
+    "quantized_time": 4.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 4.0,
+    "quantized_time": 4.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 4.5,
+    "quantized_time": 4.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 4.5,
+    "quantized_time": 4.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 4.75,
+    "quantized_time": 4.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 5.0,
+    "quantized_time": 5.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 5.0,
+    "quantized_time": 5.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 5.5,
+    "quantized_time": 5.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 5.5,
+    "quantized_time": 5.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 6.0,
+    "quantized_time": 6.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 6.0,
+    "quantized_time": 6.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 6.5,
+    "quantized_time": 6.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 6.5,
+    "quantized_time": 6.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 6.75,
+    "quantized_time": 6.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 7.0,
+    "quantized_time": 7.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 7.0,
+    "quantized_time": 7.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 7.5,
+    "quantized_time": 7.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 7.5,
+    "quantized_time": 7.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 8.0,
+    "quantized_time": 8.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 8.0,
+    "quantized_time": 8.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 8.5,
+    "quantized_time": 8.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 8.5,
+    "quantized_time": 8.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 8.75,
+    "quantized_time": 8.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 9.0,
+    "quantized_time": 9.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 9.0,
+    "quantized_time": 9.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 9.5,
+    "quantized_time": 9.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 9.5,
+    "quantized_time": 9.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 10.0,
+    "quantized_time": 10.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 10.0,
+    "quantized_time": 10.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 10.5,
+    "quantized_time": 10.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 10.5,
+    "quantized_time": 10.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 10.75,
+    "quantized_time": 10.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 11.0,
+    "quantized_time": 11.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 11.0,
+    "quantized_time": 11.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 11.5,
+    "quantized_time": 11.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 11.5,
+    "quantized_time": 11.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 12.0,
+    "quantized_time": 12.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 12.0,
+    "quantized_time": 12.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 12.5,
+    "quantized_time": 12.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 12.5,
+    "quantized_time": 12.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 12.75,
+    "quantized_time": 12.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 13.0,
+    "quantized_time": 13.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 13.0,
+    "quantized_time": 13.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 13.5,
+    "quantized_time": 13.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 13.5,
+    "quantized_time": 13.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 14.0,
+    "quantized_time": 14.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 14.0,
+    "quantized_time": 14.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 100,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 14.5,
+    "quantized_time": 14.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 14.5,
+    "quantized_time": 14.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 90,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  },
+  {
+    "time": 14.75,
+    "quantized_time": 14.75,
+    "drum_type": "open_hihat",
+    "midi_note": 46,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 15.0,
+    "quantized_time": 15.0,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 80,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 15.0,
+    "quantized_time": 15.0,
+    "drum_type": "kick",
+    "midi_note": 36,
+    "velocity": 95,
+    "confidence": 1.0,
+    "stem_group": "kick"
+  },
+  {
+    "time": 15.5,
+    "quantized_time": 15.5,
+    "drum_type": "closed_hihat",
+    "midi_note": 42,
+    "velocity": 75,
+    "confidence": 1.0,
+    "stem_group": "hh"
+  },
+  {
+    "time": 15.5,
+    "quantized_time": 15.5,
+    "drum_type": "snare",
+    "midi_note": 38,
+    "velocity": 85,
+    "confidence": 1.0,
+    "stem_group": "snare"
+  }
+]
